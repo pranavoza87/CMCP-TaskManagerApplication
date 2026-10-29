@@ -1,0 +1,17 @@
+{
+  "name": "task-manager-capstone",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Basic Task Manager: Express + SQLite backend, React (Vite) frontend",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently -n api,web -c blue,green \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "build": "npm run build --prefix frontend",
+    "start": "npm start --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

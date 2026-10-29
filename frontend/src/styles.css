@@ -1,0 +1,55 @@
+body {
+  font-family: system-ui, sans-serif;
+  background: #f4f5f7;
+  margin: 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.add-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.add-form input {
+  flex: 1;
+  padding: 0.5rem;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+}
+
+.task-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fff;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.4rem;
+  border-radius: 4px;
+}
+
+.task-list li > span:first-child {
+  flex: 1;
+}
+
+.status {
+  font-size: 0.75rem;
+  color: #555;
+  text-transform: uppercase;
+}
+
+.error {
+  color: #b00020;
+}
+
+.empty {
+  color: #777;
+}
