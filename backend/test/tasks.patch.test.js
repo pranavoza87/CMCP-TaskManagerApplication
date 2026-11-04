@@ -209,6 +209,43 @@ test('rejects a body over 100kb with 413 and the error envelope', async () => {
   assert.equal(row(id).title, 'Original');
 });
 
+test('maps an unsupported Content-Encoding to 400 VALIDATION_ERROR and leaves the row unchanged', async () => {
+  const id = seed();
+  const res = await fetch(`${base}/api/tasks/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Content-Encoding': 'bogus' },
+    body: JSON.stringify({ title: 'x' }),
+  });
+  const body = await res.json();
+  assert.equal(res.status, 400);
+  assert.equal(body.error.code, 'VALIDATION_ERROR');
+  assert.equal(typeof body.error.message, 'string');
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
+});
+
+test('maps an unsupported charset to 400 VALIDATION_ERROR and leaves the row unchanged', async () => {
+  const id = seed();
+  const res = await fetch(`${base}/api/tasks/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json; charset=bogus' },
+    body: JSON.stringify({ title: 'x' }),
+  });
+  const body = await res.json();
+  assert.equal(res.status, 400);
+  assert.equal(body.error.code, 'VALIDATION_ERROR');
+  assert.equal(typeof body.error.message, 'string');
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
+});
+
+test('does not reshape body-parser errors on other methods', async () => {
+  const res = await fetch(`${base}/api/tasks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=bogus' },
+    body: JSON.stringify({ title: 'x' }),
+  });
+  assert.equal(res.status, 415); // default Express handling, not the PATCH envelope
+});
+
 test('rejects __proto__ and constructor keys (400)', async () => {
   const id = seed();
   assertValidation(await patch(id, null, { raw: '{"__proto__":{"title":"x"}}' }), '__proto__', /unknown/);

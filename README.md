@@ -70,7 +70,10 @@ Other rules:
 - Validation runs before the lookup, so an invalid body sent to an unknown id returns `400`, not `404`.
 - Ids are positive integers written without leading zeros (`/^[1-9]\d*$/`). Anything else, such as `1.5`,
   `0`, `-1`, `007`, `1e3`, an id with surrounding spaces or a very large id, returns `404`.
-- A body larger than the default `express.json` limit (100kb) returns `413`.
+- A body larger than the default `express.json` limit (100kb) returns `413` with `PAYLOAD_TOO_LARGE`. This
+  is an explicit extension: spec 4.2.1 does not list 413 or `PAYLOAD_TOO_LARGE`.
+- Any other client error from the body parser (for example an unsupported `Content-Encoding` or charset)
+  is normalised to `400` `VALIDATION_ERROR`, so this route only returns 400, 404, 413 or 500 on failure.
 
 Success returns `200` with the updated task `{ id, title, status }`. Errors on this route use this shape:
 
@@ -81,9 +84,9 @@ Success returns `200` with the updated task `{ id, title, status }`. Errors on t
 
 | HTTP | `code`             | When                                                              |
 |------|--------------------|-------------------------------------------------------------------|
-| 400  | `VALIDATION_ERROR` | Empty body, unknown field, invalid title or status, malformed JSON |
+| 400  | `VALIDATION_ERROR` | Empty body, unknown field, invalid title or status, malformed JSON, unreadable body (unsupported encoding or charset) |
 | 404  | `NOT_FOUND`        | No task with that id, or the id is not a canonical positive integer |
-| 413  | `PAYLOAD_TOO_LARGE` | Request body is larger than 100kb                                |
+| 413  | `PAYLOAD_TOO_LARGE` | Request body is larger than 100kb (extension, not in spec 4.2.1)  |
 | 500  | `INTERNAL_ERROR`   | Unexpected server error                                           |
 
 The other routes keep their existing `{ "error": "text" }` shape for now.

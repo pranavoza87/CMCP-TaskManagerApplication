@@ -75,13 +75,16 @@ app.use((err, req, res, next) => {
       { field: 'body', issue: 'must be valid JSON' },
     ]);
   }
-  // Other client errors raised by the body parser (for example an oversized body).
+  // Other client errors raised by the body parser. 413 is an explicit extension to spec 4.2.1;
+  // every other 4xx (unsupported charset or encoding, aborted request, ...) becomes a 400.
   const clientStatus = err.status || err.statusCode;
   if (Number.isInteger(clientStatus) && clientStatus >= 400 && clientStatus < 500) {
     if (clientStatus === 413) {
       return sendError(res, 413, 'PAYLOAD_TOO_LARGE', 'Request body is too large');
     }
-    return sendError(res, clientStatus, 'VALIDATION_ERROR', 'Invalid request');
+    return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid request', [
+      { field: 'body', issue: 'could not be read' },
+    ]);
   }
   console.error(err);
   return sendError(res, 500, 'INTERNAL_ERROR', 'Internal server error');
