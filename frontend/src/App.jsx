@@ -11,6 +11,8 @@ function TaskItem({ task, onSaved, onDelete }) {
   const inputRef = useRef(null);
   const editButtonRef = useRef(null);
   const wasEditing = useRef(false);
+  // Set synchronously so two quick submits (Enter + Enter, or Enter + Save click) send one request.
+  const inFlight = useRef(false);
 
   useEffect(() => {
     if (editing) {
@@ -21,6 +23,13 @@ function TaskItem({ task, onSaved, onDelete }) {
     }
     wasEditing.current = editing;
   }, [editing]);
+
+  // After a failed save the input is re-enabled; put focus back so the user can fix and retry.
+  useEffect(() => {
+    if (editing && !saving && editError) {
+      inputRef.current?.focus();
+    }
+  }, [editing, saving, editError]);
 
   const startEdit = () => {
     setDraft(task.title);
@@ -34,11 +43,12 @@ function TaskItem({ task, onSaved, onDelete }) {
   };
 
   const save = async () => {
-    if (saving) return;
+    if (inFlight.current) return;
     if (draft.trim() === task.title) {
       cancel();
       return;
     }
+    inFlight.current = true;
     setSaving(true);
     setEditError('');
     try {
@@ -48,6 +58,7 @@ function TaskItem({ task, onSaved, onDelete }) {
     } catch (err) {
       setEditError(err.message);
     } finally {
+      inFlight.current = false;
       setSaving(false);
     }
   };
