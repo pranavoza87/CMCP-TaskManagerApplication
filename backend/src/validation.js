@@ -39,7 +39,7 @@ function validateTaskPatch(body) {
     }
   }
 
-  if ('title' in body) {
+  if (Object.hasOwn(body, 'title')) {
     if (typeof body.title !== 'string') {
       details.push({ field: 'title', issue: 'must be a string' });
     } else {
@@ -54,7 +54,7 @@ function validateTaskPatch(body) {
     }
   }
 
-  if ('status' in body) {
+  if (Object.hasOwn(body, 'status')) {
     if (typeof body.status !== 'string' || !TASK_STATUSES.includes(body.status)) {
       details.push({ field: 'status', issue: `must be one of: ${TASK_STATUSES.join(', ')}` });
     } else {
