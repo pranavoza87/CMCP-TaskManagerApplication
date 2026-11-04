@@ -68,11 +68,20 @@ app.delete('/api/tasks/:id', (req, res) => {
 
 // Scoped to PATCH only so existing routes keep their current behaviour (central handler is ENH-06).
 app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
   if (req.method !== 'PATCH') return next(err);
   if (err.type === 'entity.parse.failed') {
     return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid request', [
       { field: 'body', issue: 'must be valid JSON' },
     ]);
+  }
+  // Other client errors raised by the body parser (for example an oversized body).
+  const clientStatus = err.status || err.statusCode;
+  if (Number.isInteger(clientStatus) && clientStatus >= 400 && clientStatus < 500) {
+    if (clientStatus === 413) {
+      return sendError(res, 413, 'PAYLOAD_TOO_LARGE', 'Request body is too large');
+    }
+    return sendError(res, clientStatus, 'VALIDATION_ERROR', 'Invalid request');
   }
   console.error(err);
   return sendError(res, 500, 'INTERNAL_ERROR', 'Internal server error');

@@ -192,9 +192,50 @@ test('returns 500 INTERNAL_ERROR when the database fails', async (t) => {
     assert.equal(res.status, 500);
     assert.equal(res.body.error.code, 'INTERNAL_ERROR');
     assert.equal(typeof res.body.error.message, 'string');
+    assert.doesNotMatch(JSON.stringify(res.body), /no such table|tasks/);
   } finally {
     db.exec('ALTER TABLE tasks_bak RENAME TO tasks');
   }
+});
+
+// ---- Review fixes: hostile bodies, ids, ordering, oversized payloads ----
+
+test('rejects a body over 100kb with 413 and the error envelope', async () => {
+  const id = seed();
+  const res = await patch(id, { title: 'a'.repeat(150 * 1024) });
+  assert.equal(res.status, 413);
+  assert.equal(res.body.error.code, 'PAYLOAD_TOO_LARGE');
+  assert.equal(typeof res.body.error.message, 'string');
+  assert.equal(row(id).title, 'Original');
+});
+
+test('rejects __proto__ and constructor keys (400)', async () => {
+  const id = seed();
+  assertValidation(await patch(id, null, { raw: '{"__proto__":{"title":"x"}}' }), '__proto__', /unknown/);
+  assertValidation(await patch(id, null, { raw: '{"constructor":{"prototype":{}}}' }), 'constructor', /unknown/);
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
+});
+
+test('rejects a null title and a JSON null body (400)', async () => {
+  const id = seed();
+  assertValidation(await patch(id, { title: null }), 'title', /string/);
+  assertValidation(await patch(id, null, { raw: 'null' }), 'body', /JSON|object/); // strict parser rejects a top-level null
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
+});
+
+test('returns 404 for non-integer, zero, negative and huge ids', async () => {
+  seed();
+  for (const badId of ['1.5', '0', '-1', '99999999999999999999', '1e3', ' 1']) {
+    const res = await patch(encodeURIComponent(badId), { title: 'x' });
+    assert.equal(res.status, 404, 'id ' + badId);
+    assert.equal(res.body.error.code, 'NOT_FOUND', 'id ' + badId);
+  }
+});
+
+test('validation runs before the 404 check (invalid body on an unknown id is 400)', async () => {
+  assertValidation(await patch(987654, {}), 'body');
+  assertValidation(await patch(987654, { status: 'bogus' }), 'status');
+  assertValidation(await patch('abc', { title: '' }), 'title');
 });
 
 // ---- Regression: existing routes keep their current behaviour ----
