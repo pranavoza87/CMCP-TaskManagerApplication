@@ -38,8 +38,8 @@ app.patch('/api/tasks/:id', (req, res) => {
     return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid request', details);
   }
 
-  // Ids are integers in this schema, so a non-integer id can never match a task.
-  const id = /^\d+$/.test(req.params.id) ? Number(req.params.id) : NaN;
+  // Ids are positive integers without leading zeros; anything else can never match a task.
+  const id = /^[1-9]\d*$/.test(req.params.id) ? Number(req.params.id) : NaN;
   if (!Number.isSafeInteger(id)) {
     return sendError(res, 404, 'NOT_FOUND', 'Task not found');
   }

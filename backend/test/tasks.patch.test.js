@@ -238,6 +238,16 @@ test('returns 404 for non-integer, zero, negative and huge ids', async () => {
   assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
 });
 
+test('returns 404 for an id padded with leading zeros and leaves the row unchanged', async () => {
+  const id = seed();
+  for (const padded of [`0${id}`, `00${id}`]) {
+    const res = await patch(padded, { title: 'x' });
+    assert.equal(res.status, 404, 'id ' + padded);
+    assert.equal(res.body.error.code, 'NOT_FOUND', 'id ' + padded);
+  }
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
+});
+
 test('validation runs before the 404 check (invalid body on an unknown id is 400)', async () => {
   assertValidation(await patch(987654, {}), 'body');
   assertValidation(await patch(987654, { status: 'bogus' }), 'status');

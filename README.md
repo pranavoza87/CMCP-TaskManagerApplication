@@ -68,7 +68,8 @@ does not yet restrict `status` (tracked as ENH-05).
 Other rules:
 
 - Validation runs before the lookup, so an invalid body sent to an unknown id returns `400`, not `404`.
-- Ids are integers. A non-integer, zero, negative or very large id returns `404`.
+- Ids are positive integers written without leading zeros (`/^[1-9]\d*$/`). Anything else, such as `1.5`,
+  `0`, `-1`, `007`, `1e3`, an id with surrounding spaces or a very large id, returns `404`.
 - A body larger than the default `express.json` limit (100kb) returns `413`.
 
 Success returns `200` with the updated task `{ id, title, status }`. Errors on this route use this shape:
@@ -81,7 +82,7 @@ Success returns `200` with the updated task `{ id, title, status }`. Errors on t
 | HTTP | `code`             | When                                                              |
 |------|--------------------|-------------------------------------------------------------------|
 | 400  | `VALIDATION_ERROR` | Empty body, unknown field, invalid title or status, malformed JSON |
-| 404  | `NOT_FOUND`        | No task with that id, or the id is not a positive integer         |
+| 404  | `NOT_FOUND`        | No task with that id, or the id is not a canonical positive integer |
 | 413  | `PAYLOAD_TOO_LARGE` | Request body is larger than 100kb                                |
 | 500  | `INTERNAL_ERROR`   | Unexpected server error                                           |
 
