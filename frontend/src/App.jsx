@@ -1,5 +1,133 @@
-import { useEffect, useState } from 'react';
-import { getTasks, addTask, deleteTask } from './api.js';
+import { useEffect, useRef, useState } from 'react';
+import { getTasks, addTask, updateTask, deleteTask } from './api.js';
+
+// One list row with inline title editing (ENH-01, spec 5.1 / 5.3).
+// Enter or Save commits, Escape or Cancel discards. Server errors stay next to the input.
+function TaskItem({ task, onSaved, onDelete }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(task.title);
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState('');
+  const inputRef = useRef(null);
+  const editButtonRef = useRef(null);
+  const wasEditing = useRef(false);
+  // Set synchronously so two quick submits (Enter + Enter, or Enter + Save click) send one request.
+  const inFlight = useRef(false);
+  // Save/Cancel are replaced in place by Edit/Delete, so the second click of a double-click
+  // would land on them. Ignore Edit/Delete clicks briefly after leaving edit mode.
+  const leftEditAt = useRef(0);
+  const justLeftEdit = () => Date.now() - leftEditAt.current < 350;
+
+  useEffect(() => {
+    if (editing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    } else if (wasEditing.current) {
+      leftEditAt.current = Date.now();
+      editButtonRef.current?.focus();
+    }
+    wasEditing.current = editing;
+  }, [editing]);
+
+  // After a failed save the input is re-enabled; put focus back so the user can fix and retry.
+  useEffect(() => {
+    if (editing && !saving && editError) {
+      inputRef.current?.focus();
+    }
+  }, [editing, saving, editError]);
+
+  const startEdit = () => {
+    if (justLeftEdit()) return;
+    setDraft(task.title);
+    setEditError('');
+    setEditing(true);
+  };
+
+  const cancel = () => {
+    setEditing(false);
+    setEditError('');
+  };
+
+  const save = async () => {
+    if (inFlight.current) return;
+    if (draft.trim() === task.title) {
+      cancel();
+      return;
+    }
+    inFlight.current = true;
+    setSaving(true);
+    setEditError('');
+    try {
+      await updateTask(task.id, { title: draft });
+      setEditing(false);
+      await onSaved();
+    } catch (err) {
+      setEditError(err.message);
+    } finally {
+      inFlight.current = false;
+      setSaving(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      save();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancel();
+    }
+  };
+
+  return (
+    <li>
+      {editing ? (
+        <span className="edit-field">
+          <input
+            ref={inputRef}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={handleKeyDown}
+            aria-label={`Edit title for ${task.title}`}
+            aria-invalid={editError ? 'true' : undefined}
+            disabled={saving}
+          />
+          <span className="error" aria-live="polite">
+            {editError}
+          </span>
+        </span>
+      ) : (
+        <span>{task.title}</span>
+      )}
+      <span className="status">{task.status}</span>
+      {editing ? (
+        <>
+          <button onClick={save} disabled={saving} aria-label={`Save title for ${task.title}`}>
+            Save
+          </button>
+          <button onClick={cancel} disabled={saving} aria-label={`Cancel editing ${task.title}`}>
+            Cancel
+          </button>
+        </>
+      ) : (
+        <>
+          <button ref={editButtonRef} onClick={startEdit} aria-label={`Edit ${task.title}`}>
+            Edit
+          </button>
+          <button
+            onClick={() => {
+              if (justLeftEdit()) return;
+              onDelete(task.id);
+            }}
+            aria-label={`Delete ${task.title}`}
+          >
+            Delete
+          </button>
+        </>
+      )}
+    </li>
+  );
+}
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
@@ -55,13 +183,7 @@ export default function App() {
 
       <ul className="task-list">
         {tasks.map((t) => (
-          <li key={t.id}>
-            <span>{t.title}</span>
-            <span className="status">{t.status}</span>
-            <button onClick={() => handleDelete(t.id)} aria-label={`Delete ${t.title}`}>
-              Delete
-            </button>
-          </li>
+          <TaskItem key={t.id} task={t} onSaved={load} onDelete={handleDelete} />
         ))}
       </ul>
       {tasks.length === 0 && <p className="empty">No tasks yet.</p>}

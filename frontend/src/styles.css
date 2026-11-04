@@ -53,3 +53,18 @@ body {
 .empty {
   color: #777;
 }
+
+.edit-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.edit-field input {
+  padding: 0.35rem;
+}
+
+.edit-field .error {
+  font-size: 0.8rem;
+}
