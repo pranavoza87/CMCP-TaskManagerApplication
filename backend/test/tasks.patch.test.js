@@ -224,12 +224,18 @@ test('rejects a null title and a JSON null body (400)', async () => {
 });
 
 test('returns 404 for non-integer, zero, negative and huge ids', async () => {
-  seed();
-  for (const badId of ['1.5', '0', '-1', '99999999999999999999', '1e3', ' 1']) {
-    const res = await patch(encodeURIComponent(badId), { title: 'x' });
+  const id = seed();
+  // Path segments are sent as written (already percent-encoded where needed).
+  const badIds = [
+    '1.5', '0', '-1', '99999999999999999999', '1e3', '%201',
+    `${id}.5`, `${id}abc`, `${id}e0`, `-${id}`, `${id}%20`, `%20${id}`,
+  ];
+  for (const badId of badIds) {
+    const res = await patch(badId, { title: 'x' });
     assert.equal(res.status, 404, 'id ' + badId);
     assert.equal(res.body.error.code, 'NOT_FOUND', 'id ' + badId);
   }
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
 });
 
 test('validation runs before the 404 check (invalid body on an unknown id is 400)', async () => {
