@@ -44,6 +44,7 @@ Override with `DB_PATH` and `PORT` environment variables.
 |--------|------------------|----------------------------|------------------------------|
 | GET    | `/api/tasks`     | -                          | `[{ id, title, status }]`    |
 | POST   | `/api/tasks`     | `{ "title": "...", "status"?: "todo" }` | `201` created task |
+| PATCH  | `/api/tasks/:id` | `{ "title"?, "status"? }`  | `200` updated task, `400`, or `404` |
 | DELETE | `/api/tasks/:id` | -                          | `204`, or `404` if not found |
 
 Quick check:
@@ -51,6 +52,42 @@ Quick check:
 ```bash
 curl -X POST localhost:4000/api/tasks -H "Content-Type: application/json" -d '{"title":"Hello"}'
 curl localhost:4000/api/tasks
+```
+
+### PATCH /api/tasks/:id
+
+Updates the title, the status, or both (ENH-01). The body must contain at least one of these fields;
+unknown fields are rejected.
+
+- `title`: string, trimmed, must not be empty, at most 200 characters.
+- `status`: one of `todo`, `in_progress`, `done`.
+
+Existing rows that hold any other status are left as they are until they are patched. `POST /api/tasks`
+does not yet restrict `status` (tracked as ENH-05).
+
+Success returns `200` with the updated task `{ id, title, status }`. Errors on this route use this shape:
+
+```json
+{ "error": { "code": "VALIDATION_ERROR", "message": "Invalid request",
+             "details": [{ "field": "status", "issue": "must be one of: todo, in_progress, done" }] } }
+```
+
+| HTTP | `code`             | When                                                              |
+|------|--------------------|-------------------------------------------------------------------|
+| 400  | `VALIDATION_ERROR` | Empty body, unknown field, invalid title or status, malformed JSON |
+| 404  | `NOT_FOUND`        | No task with that id                                              |
+| 500  | `INTERNAL_ERROR`   | Unexpected server error                                           |
+
+The other routes keep their existing `{ "error": "text" }` shape for now.
+
+```bash
+curl -X PATCH localhost:4000/api/tasks/1 -H "Content-Type: application/json" -d '{"status":"in_progress"}'
+```
+
+## Testing
+
+```bash
+npm test --prefix backend   # node:test integration tests, temporary SQLite file, no extra dependencies
 ```
 
 ## Troubleshooting
