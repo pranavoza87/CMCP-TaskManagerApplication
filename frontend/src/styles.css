@@ -65,6 +65,10 @@ body {
   padding: 0.35rem;
 }
 
+.edit-field input[aria-busy='true'] {
+  opacity: 0.6;
+}
+
 .edit-field .error {
   font-size: 0.8rem;
 }

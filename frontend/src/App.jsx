@@ -9,6 +9,7 @@ function TaskItem({ task, onSaved, onDelete }) {
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState('');
   const inputRef = useRef(null);
+  const errorId = `edit-error-${task.id}`;
   const editButtonRef = useRef(null);
   const wasEditing = useRef(false);
   // Set synchronously so two quick submits (Enter + Enter, or Enter + Save click) send one request.
@@ -29,7 +30,7 @@ function TaskItem({ task, onSaved, onDelete }) {
     wasEditing.current = editing;
   }, [editing]);
 
-  // After a failed save the input is re-enabled; put focus back so the user can fix and retry.
+  // After a failed save, put focus back on the input (a click on Save may have moved it).
   useEffect(() => {
     if (editing && !saving && editError) {
       inputRef.current?.focus();
@@ -70,6 +71,7 @@ function TaskItem({ task, onSaved, onDelete }) {
   };
 
   const handleKeyDown = (e) => {
+    if (e.repeat) return;
     if (e.key === 'Enter') {
       e.preventDefault();
       save();
@@ -90,9 +92,12 @@ function TaskItem({ task, onSaved, onDelete }) {
             onKeyDown={handleKeyDown}
             aria-label={`Edit title for ${task.title}`}
             aria-invalid={editError ? 'true' : undefined}
-            disabled={saving}
+            aria-describedby={editError ? errorId : undefined}
+            aria-busy={saving}
+            readOnly={saving}
+            maxLength={200}
           />
-          <span className="error" aria-live="polite">
+          <span id={errorId} className="error" aria-live="polite">
             {editError}
           </span>
         </span>
