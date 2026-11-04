@@ -13,17 +13,17 @@ function TaskItem({ task, onSaved, onDelete }) {
   const wasEditing = useRef(false);
   // Set synchronously so two quick submits (Enter + Enter, or Enter + Save click) send one request.
   const inFlight = useRef(false);
-  // Save/Cancel are replaced in place by Edit/Delete, so the second click of a double-click
-  // would land on them. Ignore Edit/Delete clicks briefly after leaving edit mode.
-  const leftEditAt = useRef(0);
-  const justLeftEdit = () => Date.now() - leftEditAt.current < 350;
+  // Save/Cancel are swapped in place for Edit/Delete; ignore double-click and just-after-edit clicks.
+  const leftEditAt = useRef(-Infinity);
+  const justLeftEdit = () => performance.now() - leftEditAt.current < 600;
+  const isStrayClick = (e) => e.detail > 1 || justLeftEdit();
 
   useEffect(() => {
     if (editing) {
       inputRef.current?.focus();
       inputRef.current?.select();
     } else if (wasEditing.current) {
-      leftEditAt.current = Date.now();
+      leftEditAt.current = performance.now();
       editButtonRef.current?.focus();
     }
     wasEditing.current = editing;
@@ -36,8 +36,8 @@ function TaskItem({ task, onSaved, onDelete }) {
     }
   }, [editing, saving, editError]);
 
-  const startEdit = () => {
-    if (justLeftEdit()) return;
+  const startEdit = (e) => {
+    if (isStrayClick(e)) return;
     setDraft(task.title);
     setEditError('');
     setEditing(true);
@@ -115,8 +115,8 @@ function TaskItem({ task, onSaved, onDelete }) {
             Edit
           </button>
           <button
-            onClick={() => {
-              if (justLeftEdit()) return;
+            onClick={(e) => {
+              if (isStrayClick(e)) return;
               onDelete(task.id);
             }}
             aria-label={`Delete ${task.title}`}
