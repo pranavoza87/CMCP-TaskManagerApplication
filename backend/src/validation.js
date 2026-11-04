@@ -3,8 +3,12 @@
 
 const TITLE_MAX_LENGTH = 200;
 
+// Allowed task statuses (spec 4.1.1 / 4.2.3, TSK-105). Enforced in the API layer only:
+// SQLite cannot add a CHECK via ALTER, and existing rows are left untouched.
+const TASK_STATUSES = ['todo', 'in_progress', 'done'];
+
 // Fields a PATCH body may contain. Anything else is rejected (spec 4.2.3).
-const PATCHABLE_FIELDS = ['title'];
+const PATCHABLE_FIELDS = ['title', 'status'];
 
 /**
  * Validate a PATCH body.
@@ -50,7 +54,15 @@ function validateTaskPatch(body) {
     }
   }
 
+  if ('status' in body) {
+    if (typeof body.status !== 'string' || !TASK_STATUSES.includes(body.status)) {
+      details.push({ field: 'status', issue: `must be one of: ${TASK_STATUSES.join(', ')}` });
+    } else {
+      value.status = body.status;
+    }
+  }
+
   return { value, details };
 }
 
-module.exports = { TITLE_MAX_LENGTH, PATCHABLE_FIELDS, validateTaskPatch };
+module.exports = { TITLE_MAX_LENGTH, TASK_STATUSES, PATCHABLE_FIELDS, validateTaskPatch };
