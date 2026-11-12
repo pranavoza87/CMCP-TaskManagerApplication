@@ -11,10 +11,12 @@ const TITLE_MAX_LENGTH = 200;
 // U+0085) are not whitespace to trim(), so they are rejected even at the start or end.
 const CONTROL_CHARS = /[\u0000-\u001F\u007F-\u009F]/;
 
-// Invisible characters that render as nothing: ZERO WIDTH SPACE, NON-JOINER, JOINER, WORD JOINER, BOM.
-// Used only to detect a title with no visible content; they stay legal inside a real title
-// (a ZWJ is part of many emoji sequences, a ZWNJ is needed in some scripts).
-const INVISIBLE_CHARS = /[\u200B\u200C\u200D\u2060\uFEFF]/g;
+// Invisible characters that render as nothing: ZERO WIDTH SPACE, NON-JOINER, JOINER, WORD JOINER, BOM,
+// and variation selectors (U+FE00-U+FE0F, U+E0100-U+E01EF). Used only to detect a title with no visible
+// content; they stay legal inside a real title (a ZWJ is part of many emoji sequences, a ZWNJ is needed
+// in some scripts, and FE0F turns a base character like a heart into its emoji form). A selector with
+// no visible base character is what makes a title empty.
+const INVISIBLE_CHARS = /[\u200B-\u200D\u2060\uFEFF\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu;
 
 // True when nothing visible is left after dropping whitespace, control and zero-width characters.
 function isEffectivelyEmpty(title) {

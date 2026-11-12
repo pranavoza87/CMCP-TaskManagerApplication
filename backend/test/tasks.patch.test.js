@@ -110,6 +110,26 @@ test('rejects a title containing control characters (400)', async () => {
   assert.equal(row(id).title, 'Original');
 });
 
+test('rejects a title made only of variation selectors as empty (400)', async () => {
+  const id = seed();
+  for (const title of ['\uFE0F', '\uFE0E', '\uFE00\uFE0F', ' \uFE0F\u200B ', '\u{E0100}']) {
+    assertValidation(await patch(id, { title }), 'title', /empty/);
+  }
+  assert.equal(row(id).title, 'Original');
+});
+
+test('keeps a variation selector attached to a visible character', async () => {
+  const id = seed();
+  const title = '\u2764\uFE0F';
+  const res = await patch(id, { title });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.title, title);
+  // The selector counts as a normal code point: 100 hearts with FE0F are 200 characters.
+  const full = title.repeat(100);
+  assert.equal((await patch(id, { title: full })).status, 200);
+  assertValidation(await patch(id, { title: full + 'x' }), 'title', /200/);
+});
+
 test('rejects a non-whitespace control character at the start or end of a title (400)', async () => {
   const id = seed();
   for (const title of ['\u0007abc', 'abc\u0007', ' \u0000abc ', '\u0085abc', 'abc\u007F']) {
