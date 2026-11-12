@@ -59,8 +59,8 @@ curl localhost:4000/api/tasks
 Updates the title, the status, or both (ENH-01). The body must contain at least one of these fields;
 unknown fields are rejected.
 
-- `title`: string, trimmed, at most 200 characters. Length is counted in Unicode code points, so an emoji
-  counts as one character. A title with no visible content (only whitespace, zero-width characters
+- `title`: string, trimmed, at most 200 characters. Length is counted in Unicode code points, so most emoji
+  count as one character, but emoji with variation selectors or ZWJ sequences count as several. A title with no visible content (only whitespace, zero-width characters
   U+200B, U+200C, U+200D, U+2060, U+FEFF, variation selectors U+FE00-U+FE0F, or control characters) is treated as empty. Control characters
   (U+0000-U+001F, U+007F-U+009F, which includes newline and tab) are rejected inside a title. Only
   leading and trailing whitespace (such as newline, tab, carriage return) is trimmed first; a control
