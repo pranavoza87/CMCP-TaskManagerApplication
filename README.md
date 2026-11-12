@@ -59,7 +59,12 @@ curl localhost:4000/api/tasks
 Updates the title, the status, or both (ENH-01). The body must contain at least one of these fields;
 unknown fields are rejected.
 
-- `title`: string, trimmed, must not be empty, at most 200 characters.
+- `title`: string, trimmed, at most 200 characters. Length is counted in Unicode code points, so an emoji
+  counts as one character. A title with no visible content (only whitespace, zero-width characters
+  U+200B, U+200C, U+200D, U+2060, U+FEFF, or control characters) is treated as empty. Control characters
+  (U+0000-U+001F, U+007F-U+009F, which includes newline and tab) are rejected inside a title; leading
+  and trailing ones are trimmed first. Zero-width joiners inside a real title, such as in emoji
+  sequences, are kept. `POST /api/tasks` does not apply these rules yet.
 - `status`: one of `todo`, `in_progress`, `done`.
 
 Existing rows that hold any other status keep it until their status is patched. `POST /api/tasks`

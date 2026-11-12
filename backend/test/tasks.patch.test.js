@@ -93,6 +93,55 @@ test('counts the trimmed title against the 200 char limit', async () => {
   assert.equal(res.body.title.length, 200);
 });
 
+test('rejects a title made only of zero-width characters as empty (400)', async () => {
+  const id = seed();
+  for (const title of ['\u200B', '\u200C\u200D', '\u2060', '\uFEFF', ' \u200B \u2060\uFEFF\u200C\u200D ']) {
+    assertValidation(await patch(id, { title }), 'title', /empty/);
+  }
+  assert.equal(row(id).title, 'Original');
+});
+
+test('rejects a title containing control characters (400)', async () => {
+  const id = seed();
+  const titles = ['a\u0000b', 'a\u0007b', 'line1\nline2', 'a\tb', 'a\rb', 'a\u007Fb', 'a\u0085b', 'a\u009Fb'];
+  for (const title of titles) {
+    assertValidation(await patch(id, { title }), 'title', /control characters/);
+  }
+  assert.equal(row(id).title, 'Original');
+});
+
+test('treats a title of only control characters and whitespace as empty (400)', async () => {
+  const id = seed();
+  assertValidation(await patch(id, { title: '\u0000\u0007' }), 'title', /empty/);
+  assertValidation(await patch(id, { title: ' \n\t ' }), 'title', /empty/);
+});
+
+test('trims leading and trailing newlines and tabs but still accepts the title', async () => {
+  const id = seed();
+  const res = await patch(id, { title: '\n\t Padded \t\n' });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.title, 'Padded');
+});
+
+test('keeps zero-width joiners inside a real title', async () => {
+  const id = seed();
+  const title = '\u{1F468}\u200D\u{1F469}\u200D\u{1F467} family';
+  const res = await patch(id, { title });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.title, title);
+});
+
+test('measures the 200 char limit in code points: 200 emoji accepted, 201 rejected', async () => {
+  const id = seed();
+  const ok = '\u{1F600}'.repeat(200); // 400 UTF-16 code units, 200 characters
+  const res = await patch(id, { title: ok });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.title, ok);
+  assert.equal(row(id).title, ok);
+  assertValidation(await patch(id, { title: '\u{1F600}'.repeat(201) }), 'title', /200/);
+  assert.equal(row(id).title, ok);
+});
+
 test('rejects a non-string title (400)', async () => {
   const id = seed();
   assertValidation(await patch(id, { title: 42 }), 'title', /string/);

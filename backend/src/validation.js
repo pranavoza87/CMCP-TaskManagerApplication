@@ -1,7 +1,23 @@
 // Request validation for PATCH /api/tasks/:id.
 // Spec: ENH-01 Design Spec section 4.2.3 (validation rules), 4.2.1 (error details shape).
 
+// Maximum title length, measured in Unicode code points (not UTF-16 code units), so an emoji or any
+// other astral character counts as one. A ZWJ emoji sequence counts once per code point it contains.
 const TITLE_MAX_LENGTH = 200;
+
+// C0 controls (U+0000-U+001F), DEL and C1 controls (U+007F-U+009F). A title is a single line, so
+// newline and tab are rejected too when they sit inside the title (leading/trailing ones are trimmed).
+const CONTROL_CHARS = /[\u0000-\u001F\u007F-\u009F]/;
+
+// Invisible characters that render as nothing: ZERO WIDTH SPACE, NON-JOINER, JOINER, WORD JOINER, BOM.
+// Used only to detect a title with no visible content; they stay legal inside a real title
+// (a ZWJ is part of many emoji sequences, a ZWNJ is needed in some scripts).
+const INVISIBLE_CHARS = /[\u200B\u200C\u200D\u2060\uFEFF]/g;
+
+// True when nothing visible is left after dropping whitespace, control and zero-width characters.
+function isEffectivelyEmpty(title) {
+  return title.replace(INVISIBLE_CHARS, '').replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim() === '';
+}
 
 // Allowed task statuses (spec 4.1.1 / 4.2.3, TSK-105). Enforced in the API layer only:
 // SQLite cannot add a CHECK via ALTER, and existing rows are left untouched.
@@ -44,9 +60,11 @@ function validateTaskPatch(body) {
       details.push({ field: 'title', issue: 'must be a string' });
     } else {
       const title = body.title.trim();
-      if (!title) {
+      if (isEffectivelyEmpty(title)) {
         details.push({ field: 'title', issue: 'must not be empty' });
-      } else if (title.length > TITLE_MAX_LENGTH) {
+      } else if (CONTROL_CHARS.test(title)) {
+        details.push({ field: 'title', issue: 'must not contain control characters' });
+      } else if ([...title].length > TITLE_MAX_LENGTH) {
         details.push({ field: 'title', issue: `must be at most ${TITLE_MAX_LENGTH} characters` });
       } else {
         value.title = title;

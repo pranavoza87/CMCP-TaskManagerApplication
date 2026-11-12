@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { getTasks, addTask, updateTask, deleteTask } from './api.js';
 
+// Same limit and measure as the API: 200 characters, counted in code points (an emoji is one).
+// The native maxLength attribute counts UTF-16 code units, so the limit is applied here instead.
+const TITLE_MAX_LENGTH = 200;
+const clampTitle = (value) => {
+  const chars = [...value];
+  return chars.length > TITLE_MAX_LENGTH ? chars.slice(0, TITLE_MAX_LENGTH).join('') : value;
+};
+
 // One list row with inline title editing (ENH-01, spec 5.1 / 5.3).
 // Enter or Save commits, Escape or Cancel discards. Server errors stay next to the input.
 function TaskItem({ task, onSaved, onDelete }) {
@@ -88,14 +96,13 @@ function TaskItem({ task, onSaved, onDelete }) {
           <input
             ref={inputRef}
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => setDraft(clampTitle(e.target.value))}
             onKeyDown={handleKeyDown}
             aria-label={`Edit title for ${task.title}`}
             aria-invalid={editError ? 'true' : undefined}
             aria-describedby={editError ? errorId : undefined}
             aria-busy={saving}
             readOnly={saving}
-            maxLength={200}
           />
           <span id={errorId} className="error" aria-live="polite">
             {editError}
