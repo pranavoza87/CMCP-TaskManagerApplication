@@ -62,8 +62,10 @@ unknown fields are rejected.
 - `title`: string, trimmed, at most 200 characters. Length is counted in Unicode code points, so an emoji
   counts as one character. A title with no visible content (only whitespace, zero-width characters
   U+200B, U+200C, U+200D, U+2060, U+FEFF, or control characters) is treated as empty. Control characters
-  (U+0000-U+001F, U+007F-U+009F, which includes newline and tab) are rejected inside a title; leading
-  and trailing ones are trimmed first. Zero-width joiners inside a real title, such as in emoji
+  (U+0000-U+001F, U+007F-U+009F, which includes newline and tab) are rejected inside a title. Only
+  leading and trailing whitespace (such as newline, tab, carriage return) is trimmed first; a control
+  character that is not whitespace (such as NUL, BEL, DEL, U+0085) is rejected even at the start or end.
+  Zero-width joiners inside a real title, such as in emoji
   sequences, are kept. `POST /api/tasks` does not apply these rules yet.
 - `status`: one of `todo`, `in_progress`, `done`.
 

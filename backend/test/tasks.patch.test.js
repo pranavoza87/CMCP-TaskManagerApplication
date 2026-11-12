@@ -110,6 +110,14 @@ test('rejects a title containing control characters (400)', async () => {
   assert.equal(row(id).title, 'Original');
 });
 
+test('rejects a non-whitespace control character at the start or end of a title (400)', async () => {
+  const id = seed();
+  for (const title of ['\u0007abc', 'abc\u0007', ' \u0000abc ', '\u0085abc', 'abc\u007F']) {
+    assertValidation(await patch(id, { title }), 'title', /control characters/);
+  }
+  assert.equal(row(id).title, 'Original');
+});
+
 test('treats a title of only control characters and whitespace as empty (400)', async () => {
   const id = seed();
   assertValidation(await patch(id, { title: '\u0000\u0007' }), 'title', /empty/);

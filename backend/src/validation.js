@@ -6,7 +6,9 @@
 const TITLE_MAX_LENGTH = 200;
 
 // C0 controls (U+0000-U+001F), DEL and C1 controls (U+007F-U+009F). A title is a single line, so
-// newline and tab are rejected too when they sit inside the title (leading/trailing ones are trimmed).
+// newline and tab are rejected too when they sit inside the title. Only leading/trailing whitespace
+// (what String.prototype.trim() strips, e.g. \n, \t, \r) is trimmed first. Other controls (NUL, BEL, DEL,
+// U+0085) are not whitespace to trim(), so they are rejected even at the start or end.
 const CONTROL_CHARS = /[\u0000-\u001F\u007F-\u009F]/;
 
 // Invisible characters that render as nothing: ZERO WIDTH SPACE, NON-JOINER, JOINER, WORD JOINER, BOM.
