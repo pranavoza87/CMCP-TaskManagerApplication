@@ -45,16 +45,17 @@ app.patch('/api/tasks/:id', (req, res) => {
   }
 
   // Column names come from the validator's fixed field list, never from user input.
+  // A single UPDATE ... RETURNING (SQLite >= 3.35) updates and reads back atomically;
+  // no returned row means no task has that id.
   const columns = Object.keys(value);
   const assignments = columns.map((c) => `${c} = ?`).join(', ');
-  const info = db
-    .prepare(`UPDATE tasks SET ${assignments} WHERE id = ?`)
-    .run(...columns.map((c) => value[c]), id);
-  if (info.changes === 0) {
+  const task = db
+    .prepare(`UPDATE tasks SET ${assignments} WHERE id = ? RETURNING id, title, status`)
+    .get(...columns.map((c) => value[c]), id);
+  if (!task) {
     return sendError(res, 404, 'NOT_FOUND', 'Task not found');
   }
 
-  const task = db.prepare('SELECT id, title, status FROM tasks WHERE id = ?').get(id);
   res.status(200).json(task);
 });
 
