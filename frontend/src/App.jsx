@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { getTasks, addTask, updateTask, deleteTask } from './api.js';
 
+// Same limit and measure as the API: 200 characters, counted in code points (an emoji is one).
+// The native maxLength attribute counts UTF-16 code units, so the limit is applied here instead.
+const TITLE_MAX_LENGTH = 200;
+const clampTitle = (value) => {
+  const chars = [...value];
+  return chars.length > TITLE_MAX_LENGTH ? chars.slice(0, TITLE_MAX_LENGTH).join('') : value;
+};
+
 // One list row with inline title editing (ENH-01, spec 5.1 / 5.3).
 // Enter or Save commits, Escape or Cancel discards. Server errors stay next to the input.
 function TaskItem({ task, onSaved, onDelete }) {
@@ -9,35 +17,37 @@ function TaskItem({ task, onSaved, onDelete }) {
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState('');
   const inputRef = useRef(null);
+  const composingRef = useRef(false); // true while an IME composition is in progress
+  const errorId = `edit-error-${task.id}`;
   const editButtonRef = useRef(null);
   const wasEditing = useRef(false);
   // Set synchronously so two quick submits (Enter + Enter, or Enter + Save click) send one request.
   const inFlight = useRef(false);
-  // Save/Cancel are replaced in place by Edit/Delete, so the second click of a double-click
-  // would land on them. Ignore Edit/Delete clicks briefly after leaving edit mode.
-  const leftEditAt = useRef(0);
-  const justLeftEdit = () => Date.now() - leftEditAt.current < 350;
+  // Save/Cancel are swapped in place for Edit/Delete; ignore double-click and just-after-edit clicks.
+  const leftEditAt = useRef(-Infinity);
+  const justLeftEdit = () => performance.now() - leftEditAt.current < 600;
+  const isStrayClick = (e) => e.detail > 1 || justLeftEdit();
 
   useEffect(() => {
     if (editing) {
       inputRef.current?.focus();
       inputRef.current?.select();
     } else if (wasEditing.current) {
-      leftEditAt.current = Date.now();
+      leftEditAt.current = performance.now();
       editButtonRef.current?.focus();
     }
     wasEditing.current = editing;
   }, [editing]);
 
-  // After a failed save the input is re-enabled; put focus back so the user can fix and retry.
+  // After a failed save, put focus back on the input (a click on Save may have moved it).
   useEffect(() => {
     if (editing && !saving && editError) {
       inputRef.current?.focus();
     }
   }, [editing, saving, editError]);
 
-  const startEdit = () => {
-    if (justLeftEdit()) return;
+  const startEdit = (e) => {
+    if (isStrayClick(e)) return;
     setDraft(task.title);
     setEditError('');
     setEditing(true);
@@ -70,6 +80,7 @@ function TaskItem({ task, onSaved, onDelete }) {
   };
 
   const handleKeyDown = (e) => {
+    if (e.repeat) return;
     if (e.key === 'Enter') {
       e.preventDefault();
       save();
@@ -86,13 +97,24 @@ function TaskItem({ task, onSaved, onDelete }) {
           <input
             ref={inputRef}
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            // Clamp only outside IME composition (clamping mid-composition disturbs the IME); the
+            // compositionend handler clamps afterwards. A clamp that truncates moves the cursor to the end.
+            onChange={(e) => setDraft(composingRef.current ? e.target.value : clampTitle(e.target.value))}
+            onCompositionStart={() => {
+              composingRef.current = true;
+            }}
+            onCompositionEnd={(e) => {
+              composingRef.current = false;
+              setDraft(clampTitle(e.target.value));
+            }}
             onKeyDown={handleKeyDown}
             aria-label={`Edit title for ${task.title}`}
             aria-invalid={editError ? 'true' : undefined}
-            disabled={saving}
+            aria-describedby={editError ? errorId : undefined}
+            aria-busy={saving}
+            readOnly={saving}
           />
-          <span className="error" aria-live="polite">
+          <span id={errorId} className="error" aria-live="polite">
             {editError}
           </span>
         </span>
@@ -115,8 +137,8 @@ function TaskItem({ task, onSaved, onDelete }) {
             Edit
           </button>
           <button
-            onClick={() => {
-              if (justLeftEdit()) return;
+            onClick={(e) => {
+              if (isStrayClick(e)) return;
               onDelete(task.id);
             }}
             aria-label={`Delete ${task.title}`}

@@ -93,6 +93,83 @@ test('counts the trimmed title against the 200 char limit', async () => {
   assert.equal(res.body.title.length, 200);
 });
 
+test('rejects a title made only of zero-width characters as empty (400)', async () => {
+  const id = seed();
+  for (const title of ['\u200B', '\u200C\u200D', '\u2060', '\uFEFF', ' \u200B \u2060\uFEFF\u200C\u200D ']) {
+    assertValidation(await patch(id, { title }), 'title', /empty/);
+  }
+  assert.equal(row(id).title, 'Original');
+});
+
+test('rejects a title containing control characters (400)', async () => {
+  const id = seed();
+  const titles = ['a\u0000b', 'a\u0007b', 'line1\nline2', 'a\tb', 'a\rb', 'a\u007Fb', 'a\u0085b', 'a\u009Fb'];
+  for (const title of titles) {
+    assertValidation(await patch(id, { title }), 'title', /control characters/);
+  }
+  assert.equal(row(id).title, 'Original');
+});
+
+test('rejects a title made only of variation selectors as empty (400)', async () => {
+  const id = seed();
+  for (const title of ['\uFE0F', '\uFE0E', '\uFE00\uFE0F', ' \uFE0F\u200B ', '\u{E0100}']) {
+    assertValidation(await patch(id, { title }), 'title', /empty/);
+  }
+  assert.equal(row(id).title, 'Original');
+});
+
+test('keeps a variation selector attached to a visible character', async () => {
+  const id = seed();
+  const title = '\u2764\uFE0F';
+  const res = await patch(id, { title });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.title, title);
+  // The selector counts as a normal code point: 100 hearts with FE0F are 200 characters.
+  const full = title.repeat(100);
+  assert.equal((await patch(id, { title: full })).status, 200);
+  assertValidation(await patch(id, { title: full + 'x' }), 'title', /200/);
+});
+
+test('rejects a non-whitespace control character at the start or end of a title (400)', async () => {
+  const id = seed();
+  for (const title of ['\u0007abc', 'abc\u0007', ' \u0000abc ', '\u0085abc', 'abc\u007F']) {
+    assertValidation(await patch(id, { title }), 'title', /control characters/);
+  }
+  assert.equal(row(id).title, 'Original');
+});
+
+test('treats a title of only control characters and whitespace as empty (400)', async () => {
+  const id = seed();
+  assertValidation(await patch(id, { title: '\u0000\u0007' }), 'title', /empty/);
+  assertValidation(await patch(id, { title: ' \n\t ' }), 'title', /empty/);
+});
+
+test('trims leading and trailing newlines and tabs but still accepts the title', async () => {
+  const id = seed();
+  const res = await patch(id, { title: '\n\t Padded \t\n' });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.title, 'Padded');
+});
+
+test('keeps zero-width joiners inside a real title', async () => {
+  const id = seed();
+  const title = '\u{1F468}\u200D\u{1F469}\u200D\u{1F467} family';
+  const res = await patch(id, { title });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.title, title);
+});
+
+test('measures the 200 char limit in code points: 200 emoji accepted, 201 rejected', async () => {
+  const id = seed();
+  const ok = '\u{1F600}'.repeat(200); // 400 UTF-16 code units, 200 characters
+  const res = await patch(id, { title: ok });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.title, ok);
+  assert.equal(row(id).title, ok);
+  assertValidation(await patch(id, { title: '\u{1F600}'.repeat(201) }), 'title', /200/);
+  assert.equal(row(id).title, ok);
+});
+
 test('rejects a non-string title (400)', async () => {
   const id = seed();
   assertValidation(await patch(id, { title: 42 }), 'title', /string/);
@@ -209,6 +286,43 @@ test('rejects a body over 100kb with 413 and the error envelope', async () => {
   assert.equal(row(id).title, 'Original');
 });
 
+test('maps an unsupported Content-Encoding to 400 VALIDATION_ERROR and leaves the row unchanged', async () => {
+  const id = seed();
+  const res = await fetch(`${base}/api/tasks/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Content-Encoding': 'bogus' },
+    body: JSON.stringify({ title: 'x' }),
+  });
+  const body = await res.json();
+  assert.equal(res.status, 400);
+  assert.equal(body.error.code, 'VALIDATION_ERROR');
+  assert.equal(typeof body.error.message, 'string');
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
+});
+
+test('maps an unsupported charset to 400 VALIDATION_ERROR and leaves the row unchanged', async () => {
+  const id = seed();
+  const res = await fetch(`${base}/api/tasks/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json; charset=bogus' },
+    body: JSON.stringify({ title: 'x' }),
+  });
+  const body = await res.json();
+  assert.equal(res.status, 400);
+  assert.equal(body.error.code, 'VALIDATION_ERROR');
+  assert.equal(typeof body.error.message, 'string');
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
+});
+
+test('does not reshape body-parser errors on other methods', async () => {
+  const res = await fetch(`${base}/api/tasks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=bogus' },
+    body: JSON.stringify({ title: 'x' }),
+  });
+  assert.equal(res.status, 415); // default Express handling, not the PATCH envelope
+});
+
 test('rejects __proto__ and constructor keys (400)', async () => {
   const id = seed();
   assertValidation(await patch(id, null, { raw: '{"__proto__":{"title":"x"}}' }), '__proto__', /unknown/);
@@ -224,12 +338,28 @@ test('rejects a null title and a JSON null body (400)', async () => {
 });
 
 test('returns 404 for non-integer, zero, negative and huge ids', async () => {
-  seed();
-  for (const badId of ['1.5', '0', '-1', '99999999999999999999', '1e3', ' 1']) {
-    const res = await patch(encodeURIComponent(badId), { title: 'x' });
+  const id = seed();
+  // Path segments are sent as written (already percent-encoded where needed).
+  const badIds = [
+    '1.5', '0', '-1', '99999999999999999999', '1e3', '%201',
+    `${id}.5`, `${id}abc`, `${id}e0`, `-${id}`, `${id}%20`, `%20${id}`,
+  ];
+  for (const badId of badIds) {
+    const res = await patch(badId, { title: 'x' });
     assert.equal(res.status, 404, 'id ' + badId);
     assert.equal(res.body.error.code, 'NOT_FOUND', 'id ' + badId);
   }
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
+});
+
+test('returns 404 for an id padded with leading zeros and leaves the row unchanged', async () => {
+  const id = seed();
+  for (const padded of [`0${id}`, `00${id}`]) {
+    const res = await patch(padded, { title: 'x' });
+    assert.equal(res.status, 404, 'id ' + padded);
+    assert.equal(res.body.error.code, 'NOT_FOUND', 'id ' + padded);
+  }
+  assert.deepEqual(row(id), { id, title: 'Original', status: 'todo' });
 });
 
 test('validation runs before the 404 check (invalid body on an unknown id is 400)', async () => {

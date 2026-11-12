@@ -38,23 +38,24 @@ app.patch('/api/tasks/:id', (req, res) => {
     return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid request', details);
   }
 
-  // Ids are integers in this schema, so a non-integer id can never match a task.
-  const id = /^\d+$/.test(req.params.id) ? Number(req.params.id) : NaN;
+  // Ids are positive integers without leading zeros; anything else can never match a task.
+  const id = /^[1-9]\d*$/.test(req.params.id) ? Number(req.params.id) : NaN;
   if (!Number.isSafeInteger(id)) {
     return sendError(res, 404, 'NOT_FOUND', 'Task not found');
   }
 
   // Column names come from the validator's fixed field list, never from user input.
+  // A single UPDATE ... RETURNING (SQLite >= 3.35) updates and reads back atomically;
+  // no returned row means no task has that id.
   const columns = Object.keys(value);
   const assignments = columns.map((c) => `${c} = ?`).join(', ');
-  const info = db
-    .prepare(`UPDATE tasks SET ${assignments} WHERE id = ?`)
-    .run(...columns.map((c) => value[c]), id);
-  if (info.changes === 0) {
+  const task = db
+    .prepare(`UPDATE tasks SET ${assignments} WHERE id = ? RETURNING id, title, status`)
+    .get(...columns.map((c) => value[c]), id);
+  if (!task) {
     return sendError(res, 404, 'NOT_FOUND', 'Task not found');
   }
 
-  const task = db.prepare('SELECT id, title, status FROM tasks WHERE id = ?').get(id);
   res.status(200).json(task);
 });
 
@@ -75,13 +76,16 @@ app.use((err, req, res, next) => {
       { field: 'body', issue: 'must be valid JSON' },
     ]);
   }
-  // Other client errors raised by the body parser (for example an oversized body).
+  // Other client errors raised by the body parser. 413 is an explicit extension to spec 4.2.1;
+  // every other 4xx (unsupported charset or encoding, aborted request, ...) becomes a 400.
   const clientStatus = err.status || err.statusCode;
   if (Number.isInteger(clientStatus) && clientStatus >= 400 && clientStatus < 500) {
     if (clientStatus === 413) {
       return sendError(res, 413, 'PAYLOAD_TOO_LARGE', 'Request body is too large');
     }
-    return sendError(res, clientStatus, 'VALIDATION_ERROR', 'Invalid request');
+    return sendError(res, 400, 'VALIDATION_ERROR', 'Invalid request', [
+      { field: 'body', issue: 'could not be read' },
+    ]);
   }
   console.error(err);
   return sendError(res, 500, 'INTERNAL_ERROR', 'Internal server error');

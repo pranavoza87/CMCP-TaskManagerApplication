@@ -1,7 +1,27 @@
 // Request validation for PATCH /api/tasks/:id.
 // Spec: ENH-01 Design Spec section 4.2.3 (validation rules), 4.2.1 (error details shape).
 
+// Maximum title length, measured in Unicode code points (not UTF-16 code units), so an emoji or any
+// other astral character counts as one. A ZWJ emoji sequence counts once per code point it contains.
 const TITLE_MAX_LENGTH = 200;
+
+// C0 controls (U+0000-U+001F), DEL and C1 controls (U+007F-U+009F). A title is a single line, so
+// newline and tab are rejected too when they sit inside the title. Only leading/trailing whitespace
+// (what String.prototype.trim() strips, e.g. \n, \t, \r) is trimmed first. Other controls (NUL, BEL, DEL,
+// U+0085) are not whitespace to trim(), so they are rejected even at the start or end.
+const CONTROL_CHARS = /[\u0000-\u001F\u007F-\u009F]/;
+
+// Invisible characters that render as nothing: ZERO WIDTH SPACE, NON-JOINER, JOINER, WORD JOINER, BOM,
+// and variation selectors (U+FE00-U+FE0F, U+E0100-U+E01EF). Used only to detect a title with no visible
+// content; they stay legal inside a real title (a ZWJ is part of many emoji sequences, a ZWNJ is needed
+// in some scripts, and FE0F turns a base character like a heart into its emoji form). A selector with
+// no visible base character is what makes a title empty.
+const INVISIBLE_CHARS = /[\u200B-\u200D\u2060\uFEFF\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu;
+
+// True when nothing visible is left after dropping whitespace, control and zero-width characters.
+function isEffectivelyEmpty(title) {
+  return title.replace(INVISIBLE_CHARS, '').replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim() === '';
+}
 
 // Allowed task statuses (spec 4.1.1 / 4.2.3, TSK-105). Enforced in the API layer only:
 // SQLite cannot add a CHECK via ALTER, and existing rows are left untouched.
@@ -39,14 +59,16 @@ function validateTaskPatch(body) {
     }
   }
 
-  if ('title' in body) {
+  if (Object.hasOwn(body, 'title')) {
     if (typeof body.title !== 'string') {
       details.push({ field: 'title', issue: 'must be a string' });
     } else {
       const title = body.title.trim();
-      if (!title) {
+      if (isEffectivelyEmpty(title)) {
         details.push({ field: 'title', issue: 'must not be empty' });
-      } else if (title.length > TITLE_MAX_LENGTH) {
+      } else if (CONTROL_CHARS.test(title)) {
+        details.push({ field: 'title', issue: 'must not contain control characters' });
+      } else if ([...title].length > TITLE_MAX_LENGTH) {
         details.push({ field: 'title', issue: `must be at most ${TITLE_MAX_LENGTH} characters` });
       } else {
         value.title = title;
@@ -54,7 +76,7 @@ function validateTaskPatch(body) {
     }
   }
 
-  if ('status' in body) {
+  if (Object.hasOwn(body, 'status')) {
     if (typeof body.status !== 'string' || !TASK_STATUSES.includes(body.status)) {
       details.push({ field: 'status', issue: `must be one of: ${TASK_STATUSES.join(', ')}` });
     } else {
