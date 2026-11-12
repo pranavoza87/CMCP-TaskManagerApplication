@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { getTasks, addTask, updateTask, deleteTask } from './api.js';
 
-// Same limit and measure as the API: 200 characters, counted in code points (an emoji is one).
+// Same limit and measure as the API: 200 characters, counted in code points (an emoji counts as one, but one with
+// a variation selector or a ZWJ sequence counts as several).
 // The native maxLength attribute counts UTF-16 code units, so the limit is applied here instead.
 const TITLE_MAX_LENGTH = 200;
 const clampTitle = (value) => {
@@ -48,12 +49,14 @@ function TaskItem({ task, onSaved, onDelete }) {
 
   const startEdit = (e) => {
     if (isStrayClick(e)) return;
+    composingRef.current = false;
     setDraft(task.title);
     setEditError('');
     setEditing(true);
   };
 
   const cancel = () => {
+    composingRef.current = false;
     setEditing(false);
     setEditError('');
   };
@@ -81,6 +84,8 @@ function TaskItem({ task, onSaved, onDelete }) {
 
   const handleKeyDown = (e) => {
     if (e.repeat) return;
+    // Enter confirming an IME candidate, or Escape during composition, belongs to the IME.
+    if (e.nativeEvent.isComposing || e.keyCode === 229 || composingRef.current) return;
     if (e.key === 'Enter') {
       e.preventDefault();
       save();

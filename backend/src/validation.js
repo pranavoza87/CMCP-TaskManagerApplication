@@ -1,8 +1,9 @@
 // Request validation for PATCH /api/tasks/:id.
 // Spec: ENH-01 Design Spec section 4.2.3 (validation rules), 4.2.1 (error details shape).
 
-// Maximum title length, measured in Unicode code points (not UTF-16 code units), so an emoji or any
-// other astral character counts as one. A ZWJ emoji sequence counts once per code point it contains.
+// Maximum title length, measured in Unicode code points (not UTF-16 code units), so most emoji and
+// other astral characters count as one. Emoji with variation selectors (such as a heart with FE0F) and ZWJ
+// sequences count once per code point they contain, so they count as several.
 const TITLE_MAX_LENGTH = 200;
 
 // C0 controls (U+0000-U+001F), DEL and C1 controls (U+007F-U+009F). A title is a single line, so
