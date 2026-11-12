@@ -17,6 +17,7 @@ function TaskItem({ task, onSaved, onDelete }) {
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState('');
   const inputRef = useRef(null);
+  const composingRef = useRef(false); // true while an IME composition is in progress
   const errorId = `edit-error-${task.id}`;
   const editButtonRef = useRef(null);
   const wasEditing = useRef(false);
@@ -96,7 +97,16 @@ function TaskItem({ task, onSaved, onDelete }) {
           <input
             ref={inputRef}
             value={draft}
-            onChange={(e) => setDraft(clampTitle(e.target.value))}
+            // Clamp only outside IME composition (clamping mid-composition disturbs the IME); the
+            // compositionend handler clamps afterwards. A clamp that truncates moves the cursor to the end.
+            onChange={(e) => setDraft(composingRef.current ? e.target.value : clampTitle(e.target.value))}
+            onCompositionStart={() => {
+              composingRef.current = true;
+            }}
+            onCompositionEnd={(e) => {
+              composingRef.current = false;
+              setDraft(clampTitle(e.target.value));
+            }}
             onKeyDown={handleKeyDown}
             aria-label={`Edit title for ${task.title}`}
             aria-invalid={editError ? 'true' : undefined}
