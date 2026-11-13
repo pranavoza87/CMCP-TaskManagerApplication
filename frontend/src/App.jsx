@@ -184,12 +184,14 @@ export default function App() {
   };
 
   const handleDelete = async (id) => {
+    setError('');
     try {
-      setError('');
       await deleteTask(id);
-      await load();
     } catch (err) {
+      // ENH-13: Even when the API returns 404, refresh to avoid a stale UI row.
       setError(err.message);
+    } finally {
+      await load();
     }
   };
 
@@ -200,8 +202,10 @@ export default function App() {
       <form onSubmit={handleAdd} className="add-form">
         <input
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => setTitle(clampTitle(e.target.value))}
           placeholder="New task title"
+          // NOTE: native maxLength counts UTF-16 code units; we still clamp by code points in JS for consistency.
+          maxLength={TITLE_MAX_LENGTH}
         />
         <button type="submit">Add</button>
       </form>
