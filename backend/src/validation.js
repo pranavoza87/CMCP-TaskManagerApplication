@@ -28,6 +28,20 @@ function isEffectivelyEmpty(title) {
 // SQLite cannot add a CHECK via ALTER, and existing rows are left untouched.
 const TASK_STATUSES = ['todo', 'in_progress', 'done'];
 
+/**
+ * Validate the optional `status` of a POST /api/tasks body (EPMCDMETST-72162, REQ-01).
+ * A missing or falsy status (undefined, null, '', 0, false) defaults to 'todo'. Any other value must be a
+ * string in TASK_STATUSES, the same allowlist PATCH enforces. Returns { value, error }; `error` is null
+ * when valid, otherwise a message suitable for the POST `{ error }` response.
+ */
+function validateTaskCreateStatus(status) {
+  if (!status) return { value: 'todo', error: null };
+  if (typeof status !== 'string' || !TASK_STATUSES.includes(status)) {
+    return { value: null, error: `status must be one of: ${TASK_STATUSES.join(', ')}` };
+  }
+  return { value: status, error: null };
+}
+
 // Fields a PATCH body may contain. Anything else is rejected (spec 4.2.3).
 const PATCHABLE_FIELDS = ['title', 'status'];
 
@@ -88,4 +102,4 @@ function validateTaskPatch(body) {
   return { value, details };
 }
 
-module.exports = { TITLE_MAX_LENGTH, TASK_STATUSES, PATCHABLE_FIELDS, validateTaskPatch };
+module.exports = { TITLE_MAX_LENGTH, TASK_STATUSES, PATCHABLE_FIELDS, validateTaskPatch, validateTaskCreateStatus };

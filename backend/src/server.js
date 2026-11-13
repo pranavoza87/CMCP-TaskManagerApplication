@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
-const { validateTaskPatch } = require('./validation');
+const { validateTaskPatch, validateTaskCreateStatus } = require('./validation');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -70,7 +70,13 @@ app.post('/api/tasks', (req, res) => {
     return res.status(400).json({ error: `title must be at most ${maxTitleLength} characters` });
   }
 
-  const status = req.body.status || 'todo';
+  // EPMCDMETST-72162 (REQ-01): same status allowlist as PATCH; missing/falsy defaults to 'todo',
+  // anything else that is not an allowed string is rejected before any insert.
+  const { value: status, error: statusError } = validateTaskCreateStatus(req.body.status);
+  if (statusError) {
+    return res.status(400).json({ error: statusError });
+  }
+
   const info = db.prepare('INSERT INTO tasks (title, status) VALUES (?, ?)').run(title, status);
   res.status(201).json({ id: info.lastInsertRowid, title, status });
 });

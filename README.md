@@ -43,7 +43,7 @@ Override with `DB_PATH` and `PORT` environment variables.
 | Method | Path             | Body                       | Response                     |
 |--------|------------------|----------------------------|------------------------------|
 | GET    | `/api/tasks`     | -                          | `[{ id, title, status }]`    |
-| POST   | `/api/tasks`     | `{ "title": "...", "status"?: "todo" }` | `201` created task |
+| POST   | `/api/tasks`     | `{ "title": "...", "status"?: "todo" \| "in_progress" \| "done" }` | `201` created task, or `400` |
 | PATCH  | `/api/tasks/:id` | `{ "title"?, "status"? }`  | `200` updated task, `400`, `404`, `413` or `500` |
 | DELETE | `/api/tasks/:id` | -                          | `204`, or `404` if not found |
 
@@ -70,7 +70,10 @@ unknown fields are rejected.
 - `status`: one of `todo`, `in_progress`, `done`.
 
 Existing rows that hold any other status keep it until their status is patched. `POST /api/tasks`
-does not yet restrict `status` (tracked as ENH-05).
+applies the same status allowlist (EPMCDMETST-72162): a missing or falsy `status` (omitted, `null`,
+`""`) defaults to `todo`; any other value that is not one of `todo`, `in_progress`, `done` (including
+non-string values) returns `400` with `{ "error": "status must be one of: todo, in_progress, done" }`
+and no task is created. This is a behaviour change for clients that previously sent other statuses.
 
 Other rules:
 

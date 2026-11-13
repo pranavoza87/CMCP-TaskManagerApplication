@@ -370,7 +370,7 @@ test('validation runs before the 404 check (invalid body on an unknown id is 400
 
 // ---- Regression: existing routes keep their current behaviour ----
 
-test('existing routes are unchanged (legacy error shape, POST still accepts any status)', async () => {
+test('existing routes keep their legacy error shape (POST now rejects invalid status, EPMCDMETST-72162)', async () => {
   const post = (body) =>
     fetch(`${base}/api/tasks`, {
       method: 'POST',
@@ -378,9 +378,14 @@ test('existing routes are unchanged (legacy error shape, POST still accepts any 
       body: JSON.stringify(body),
     });
 
-  const created = await post({ title: 'Via POST', status: 'anything' });
+  const created = await post({ title: 'Via POST', status: 'in_progress' });
   assert.equal(created.status, 201);
-  assert.equal((await created.json()).status, 'anything');
+  assert.equal((await created.json()).status, 'in_progress');
+
+  // EPMCDMETST-72162: POST no longer accepts arbitrary statuses; it keeps the legacy `{ error: string }` shape.
+  const invalidStatus = await post({ title: 'Via POST', status: 'anything' });
+  assert.equal(invalidStatus.status, 400);
+  assert.deepEqual(await invalidStatus.json(), { error: 'status must be one of: todo, in_progress, done' });
 
   const bad = await post({ title: '' });
   assert.equal(bad.status, 400);
