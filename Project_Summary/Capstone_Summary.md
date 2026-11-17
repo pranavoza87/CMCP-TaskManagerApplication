@@ -213,7 +213,10 @@ The three states that write to Jira or Confluence pause for human approval first
 
 ![Figure 5 – Jira Epic EPMCDMETST-72136](images/figure-05-jira-epic.png)
 
-📸 **Figure 6: A Story (for example 72137) with its 3 sub-tasks.**
+📸 **Figure 6: A Story (EPMCDMETST-72137, ENH-13) with its 3 sub-tasks.** The Sub-Tasks section lists Implementation (72138), Testing (72139) and Code Review (72140). The story is linked to Epic EPMCDMETST-72136.
+
+![Figure 6 – Jira story EPMCDMETST-72137 with sub-tasks](images/figure-06-jira-story-subtasks.png)
+
 📸 **Figure 7: Workflow paused at the approval step.**
 📄 **Evidence:** `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
 
