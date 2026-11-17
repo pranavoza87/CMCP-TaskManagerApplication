@@ -31,7 +31,7 @@
 | 7 | End-to-End Traceability Matrix |
 | 8 | Reviewer Checklist and Evidence Index |
 | 9 | Key Design Decisions and Notes |
-| 10 | Assistant 5: Code Dev Assistant |
+| 10 | Assistant 5: Development and Coding Assistant |
 | 11 | Assistant 6: GitHub PR Review & Merge Assistant |
 | 12 | Assistant 7: Playwright-BDD Automation Test Generator |
 | 13 | Assistant 8: Local Build & Git Deployment Assistant |
@@ -123,6 +123,7 @@ Each skill follows the same structure: Purpose, Context, Instructions, Examples,
 |---|---|
 | **State ID** | `Requirements_Generator` |
 | **Assistant ID** | `ae3c9b28-a04f-47bd-bce2-6670e0d6f0d0` |
+| **Assistant name** | Requirements and Enhancement Analyst |
 | **Role** | Requirement and Enhancement Analyst |
 | **Skill** | `requirement-enhancement-generator` (attached in the assistant's skills configuration; see section 1.5) |
 
@@ -182,6 +183,7 @@ Each skill follows the same structure: Purpose, Context, Instructions, Examples,
 |---|---|
 | **State ID** | `Jira_Integration` |
 | **Assistant ID** | `b5e9a8cf-63c3-4b47-9b9f-074acdd24df6` |
+| **Assistant name** | Jira EPIC & User Story Generator |
 | **Role** | Agile Product Owner and Jira Integration Specialist |
 | **Skill** | `jira-creation-from-requirements` (attached in the assistant's skills configuration; see section 1.5) |
 | **Human approval** | ✓ before execution |
@@ -246,6 +248,7 @@ Each skill follows the same structure: Purpose, Context, Instructions, Examples,
 |---|---|
 | **State ID** | `Master_Plan_Generator` |
 | **Assistant ID** | `7ab86f41-b2b6-422f-a838-91c96b597dca` |
+| **Assistant name** | Implementation Plan Generator |
 | **Role** | Technical Program Manager and Enterprise Solutions Architect |
 | **Skill** | `master-implementation-plan-creation-confluence` (attached in the assistant's skills configuration; see section 1.5) |
 | **Human approval** | ✓ before execution |
@@ -294,6 +297,7 @@ Each skill follows the same structure: Purpose, Context, Instructions, Examples,
 |---|---|
 | **State ID** | `Design_Doc_Generator` |
 | **Assistant ID** | `87273031-8387-4648-8d9d-c735d89f4624` |
+| **Assistant name** | Design Spec Doc Generator |
 | **Role** | Enterprise Solutions Architect and UI/UX Designer |
 | **Skill** | `design-specs-generation-to-confluence` (attached in the assistant's skills configuration; see section 1.5) |
 | **Human approval** | ✓ before execution |
@@ -433,7 +437,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 
 ---
 
-## 10. Assistant 5: Code Dev Assistant
+## 10. Assistant 5: Development and Coding Assistant
 
 | | |
 |---|---|
@@ -480,7 +484,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 
 **Figure 14:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
 
-![Figure 14 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
+![Figure 14 – Development and Coding Assistant confirmation prompt](images/figure-14-code-dev-confirmation.png)
 
 **Figure 15:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
 
@@ -713,7 +717,7 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 
 | Step | Assistant | Receives | Produces |
 |---|---|---|---|
-| 5 | Code Dev | Jira backlog, Master Plan, design pages | Commits on a feature branch |
+| 5 | Development and Coding Assistant | Jira backlog, Master Plan, design pages | Commits on a feature branch |
 | 6 | PR Review & Merge | The pull request | Review comments, then merge |
 | 7 | Playwright-BDD Test Generator | Code, Jira stories, Confluence specs | Features, test run, Jira and Confluence updates |
 | 8 | Local Build & Git Deployment | Merged `main` | Build and test results, verified deployment package on a branch |
