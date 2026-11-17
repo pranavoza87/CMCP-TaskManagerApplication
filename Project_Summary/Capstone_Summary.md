@@ -401,7 +401,9 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 
 **Jira keys:** Epic EPMCDMETST-70517 with stories 70518 and 70519 (ENH-01); Epic EPMCDMETST-72136 (PR #6 fix).
 
-📸 **Figure 14:** Epic/Story confirmation prompt. *(Insert screenshot.)*
+📸 **Figure 14:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
+
+![Figure 14 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
 📸 **Figure 15:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
 
 ![Figure 15 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
