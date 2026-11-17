@@ -84,7 +84,9 @@ The three states that write to Jira or Confluence pause for human approval first
 | Design_Doc_Generator | ✅ Succeeded | 14:46:46 |
 | Result_Finalizer_Node | ✅ Succeeded | 14:47:14 |
 
-📸 **Figure 3: Execution history showing all nodes as Succeeded.** *(Insert screenshot.)*
+📸 **Figure 3: Execution history showing all nodes as Succeeded.** The run of `TM_Workflow_Final` shows SUCCEEDED, with the four assistants and the result finalizer each marked complete (step times: 1 min 20 s, 2 min 7 s, 54 s, 1 min 50 s and 28 s). The screenshot shows local time (IST, UTC+05:30), so its start and finish (20:06 to 20:17) correspond to the UTC times in the table above (about 14:36 to 14:47).
+
+![Figure 3 – Workflow execution history](images/figure-03-execution-history.png)
 
 ### 1.4 Summary of generated outputs
 
