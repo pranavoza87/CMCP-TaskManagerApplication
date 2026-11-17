@@ -545,9 +545,13 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 
 ![Figure 18 – Playwright HTML report](images/figure-18-playwright-report.png)
 
-📸 **Figure 19:** Jira comment on EPMCDMETST-72162. *(Insert screenshot.)*
+📸 **Figure 19:** Assistant 7's retest comment on EPMCDMETST-72162 in Jira (17 Nov 2026). The Run Cycle 04 link inside the comment shows the page's original title; the page ID in the link resolves to the renamed page.
 
-📸 **Figure 20:** Confluence Run Cycle page tree. *(Insert screenshot.)*
+![Figure 19 – Jira comment on EPMCDMETST-72162](images/figure-19-jira-comment-EPMCDMETST-72162.png)
+
+📸 **Figure 20:** Confluence page tree under "Automation Testing Artifacts": Run Cycles 01 to 04, with Run Cycle 04 (`2026-11-17 11-48-13`) and its Test Plan and Test Execution Summary pages.
+
+![Figure 20 – Confluence Run Cycle 04 page tree](images/figure-20-confluence-run-cycle-04-page-tree.png)
 
 ---
 
