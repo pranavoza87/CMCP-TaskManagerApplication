@@ -70,7 +70,9 @@ Each assistant reads the previous assistant's JSON output. It returns JSON that 
 
 The three states that write to Jira or Confluence pause for human approval first.
 
-📸 **Figure 2: Workflow canvas in CodeMie.** *(Insert screenshot.)*
+📸 **Figure 2: Workflow canvas in CodeMie.** The canvas shows Start, the four assistant states (Requirements_Generator, Jira_Integration, Master_Plan_Generator, Design_Doc_Generator) and End. The human-approval pauses are set in the workflow YAML (`interrupt_before`), as listed in the table above.
+
+![Figure 2 – Workflow canvas in CodeMie](images/figure-02-workflow-export.png)
 
 ### 1.3 Execution status and timeline
 
