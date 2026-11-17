@@ -411,6 +411,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | 14 | Reusable skills created and attached to Assistants 1 to 4 | ✓ One skill per assistant | Section 1.5 |
 
 **Evidence files** (the step output files are in `Project_Summary/Evidences/`):
+
 - `TM_Workflow_Final_YAML.yml`
 - `2026-11-13_14-37-32.434_requirements_generator_succeeded.md`
 - `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
@@ -691,6 +692,7 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 | Package checks | Valid zip. The backend files are byte-identical to the committed files at `d440e32`. The frontend files are identical to a fresh build. The checksum matches `deploy/MANIFEST.md`. |
 | Launch from the package | Unpacked with `Expand-Archive` into a clean folder, then `npm ci --omit=dev` (0 vulnerabilities). `/api/health` 200, frontend page 200, proxied `/api/tasks` 200. Three sample tasks were created (201). All processes were stopped and the ports released. |
 | Git | Branch [`build/deployment-package-72136`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/tree/build/deployment-package-72136/deploy), folder `deploy/` with the zip, `MANIFEST.md` and `README.md`. Latest commit [`4c0827e`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/4c0827e37285f98aabd2878adb4fb8caebb24ad6). Pushed with no force. No PR was opened. |
+
 **Figure 21:** Console log of Assistant 8's evidence run on 17 Nov 2026, shown in two parts: (a) dependency install, backend tests, production build and the check of the committed package; (b) launch from the package, sample tasks, cleanup and the result summary (all seven steps PASS). The images are rendered from the agent's log file; the text is unchanged.
 
 ![Figure 21a – Build and package check](images/figure-21a-build-and-package-check.png)
