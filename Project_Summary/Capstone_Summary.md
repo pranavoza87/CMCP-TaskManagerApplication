@@ -209,7 +209,10 @@ The three states that write to Jira or Confluence pause for human approval first
 | ENH-16 | [EPMCDMETST-72149](https://jiraeu.epam.com/browse/EPMCDMETST-72149) | [72150](https://jiraeu.epam.com/browse/EPMCDMETST-72150) / [72151](https://jiraeu.epam.com/browse/EPMCDMETST-72151) / [72152](https://jiraeu.epam.com/browse/EPMCDMETST-72152) |
 | ENH-17 | [EPMCDMETST-72153](https://jiraeu.epam.com/browse/EPMCDMETST-72153) | [72154](https://jiraeu.epam.com/browse/EPMCDMETST-72154) / [72155](https://jiraeu.epam.com/browse/EPMCDMETST-72155) / [72156](https://jiraeu.epam.com/browse/EPMCDMETST-72156) |
 
-📸 **Figure 5: Jira Epic EPMCDMETST-72136 with child issues.**
+📸 **Figure 5: Jira Epic EPMCDMETST-72136 with its linked stories.** The Epic "Task Manager Application Enhancements" lists the five stories (EPMCDMETST-72137, 72141, 72145, 72149 and 72153) for ENH-13 to ENH-17. The linked bug EPMCDMETST-72213 appears as Resolved.
+
+![Figure 5 – Jira Epic EPMCDMETST-72136](images/figure-05-jira-epic.png)
+
 📸 **Figure 6: A Story (for example 72137) with its 3 sub-tasks.**
 📸 **Figure 7: Workflow paused at the approval step.**
 📄 **Evidence:** `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
