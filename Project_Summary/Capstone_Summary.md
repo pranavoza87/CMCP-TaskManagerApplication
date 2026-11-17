@@ -151,7 +151,11 @@ The three states that write to Jira or Confluence pause for human approval first
 
 > **Sample acceptance criteria (ENH-13):** *Given* the UI shows a task that no longer exists on the server, *When* the user clicks Delete and the API returns `404 {"error":"task not found"}`, *Then* the UI shows the error and refreshes the list so the stale row is removed.
 
-📸 **Figure 4: Requirements Generator output (JSON).** *(Insert screenshot.)*
+📸 **Figure 4: Requirements Generator output (JSON).** The images below are rendered from the assistant's JSON output (the Result of the Requirements_Generator step), shown in two parts for readability. The values are unchanged; the "..." lines only mark where the output is split between the two images.
+
+![Figure 4a – Requirements Generator output, part 1](images/figure-04a-requirements-output-part1.png)
+
+![Figure 4b – Requirements Generator output, part 2](images/figure-04b-requirements-output-part2.png)
 📄 **Evidence:** `2026-11-13_14-37-32.434_requirements_generator_succeeded.md`
 
 ---
