@@ -4,6 +4,8 @@ export interface ApiResult {
   status: number;
   text: string;
   json: any;
+  /** Response headers, names lower-cased. */
+  headers: Record<string, string>;
 }
 
 export interface Task {
@@ -16,7 +18,7 @@ export class ApiClient {
   constructor(private readonly ctx: APIRequestContext) {}
 
   async send(
-    method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'OPTIONS',
     url: string,
     opts: { data?: unknown; raw?: string; headers?: Record<string, string> } = {},
   ): Promise<ApiResult> {
@@ -34,7 +36,7 @@ export class ApiClient {
     } catch {
       json = undefined;
     }
-    return { status: res.status(), text, json };
+    return { status: res.status(), text, json, headers: res.headers() };
   }
 
   async list(): Promise<Task[]> {
