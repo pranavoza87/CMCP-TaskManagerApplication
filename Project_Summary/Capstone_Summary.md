@@ -571,7 +571,9 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
   "files_committed": ["build/BUILD_INFO.md"], "pushed": true, "pr_opened": false }
 ```
 
-📸 **Figure 21:** Build and test output. *(Insert screenshot.)*
+📸 **Figure 21:** Build and test output, re-run on 17 Nov 2026 09:46 UTC against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
+
+![Figure 21 – Build and test output](images/figure-21-build-output.png)
 📸 **Figure 22:** Application running locally on `localhost:5173` (sample tasks added for the capture).
 
 ![Figure 22 – Running application](images/figure-22-running-app.png)
