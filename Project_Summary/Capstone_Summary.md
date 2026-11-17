@@ -1,7 +1,6 @@
----
-
 # CodeMie Capstone Project Summary
-### Automated Requirements-to-Design Workflow for Task Manager Application Enhancements
+
+**Automated Requirements-to-Design Workflow for Task Manager Application Enhancements**
 
 | | |
 |---|---|
@@ -9,14 +8,12 @@
 | **Platform** | EPAM CodeMie, multi-assistant workflow |
 | **Workflow file** | `TM_Workflow_Final_YAML.yml` |
 | **Execution date** | 13 Nov 2026 |
-| **Final status** | ✅ **SUCCEEDED** (all 4 assistants and the finalizer) |
+| **Final status** | ✓ **SUCCEEDED** (all 4 assistants and the finalizer) |
 | **Author** | Pranav Oza (pranav_oza@epam.com) |
 
 ---
 
 ## Table of Contents
-
-*(In Word or Google Docs, replace this table with an auto-generated TOC to get page numbers.)*
 
 | Section | Title |
 |---|---|
@@ -25,6 +22,7 @@
 | 1.2 | Architecture and flow (Figure 1) |
 | 1.3 | Execution status |
 | 1.4 | Summary of generated outputs |
+| 1.5 | Skills used by Assistants 1 to 4 |
 | 2 | Assistant 1: Requirements Generator |
 | 3 | Assistant 2: Jira Integration |
 | 4 | Assistant 3: Master Plan Generator |
@@ -47,7 +45,7 @@
 This workflow turns one plain-language request into a traceable delivery package. The request was *"Generate new enhancements for task manager application."* Four chained CodeMie assistants run in sequence:
 
 1. **Requirements Generator** analyzes the application and writes structured requirements.
-2. **Jira Integration** creates the backlog (Epic → Stories → Sub-tasks).
+2. **Jira Integration** creates the backlog: an Epic, Stories linked to the Epic, and Sub-tasks under each Story.
 3. **Master Plan Generator** publishes a Master Implementation Plan to Confluence.
 4. **Design Doc Generator** returns the Architecture, HLD, LLD and Wireframe design pages in Confluence. These pages already existed from an earlier run and serve as the design baseline (see section 5).
 
@@ -56,8 +54,6 @@ Each assistant reads the previous assistant's JSON output. It returns JSON that 
 ### 1.2 Architecture and flow
 
 **Figure 1: Workflow diagram** 
-
-**Figure 1 file:** `images/figure-01-workflow-diagram.png`.
 
 ![Figure 1 – Workflow diagram](images/figure-01-workflow-diagram.png)
 
@@ -70,7 +66,7 @@ Each assistant reads the previous assistant's JSON output. It returns JSON that 
 
 The three states that write to Jira or Confluence pause for human approval first.
 
-📸 **Figure 2: Workflow canvas in CodeMie.** The canvas shows Start, the four assistant states (Requirements_Generator, Jira_Integration, Master_Plan_Generator, Design_Doc_Generator) and End. The human-approval pauses are set in the workflow YAML (`interrupt_before`), as listed in the table above.
+**Figure 2: Workflow canvas in CodeMie.** The canvas shows Start, the four assistant states (Requirements_Generator, Jira_Integration, Master_Plan_Generator, Design_Doc_Generator) and End. The human-approval pauses are set in the workflow YAML (`interrupt_before`), as listed in the table above.
 
 ![Figure 2 – Workflow canvas in CodeMie](images/figure-02-workflow-export.png)
 
@@ -78,13 +74,13 @@ The three states that write to Jira or Confluence pause for human approval first
 
 | Step | Status |
 |---|---|
-| Requirements_Generator | ✅ Succeeded |
-| Jira_Integration | ✅ Succeeded |
-| Master_Plan_Generator | ✅ Succeeded |
-| Design_Doc_Generator | ✅ Succeeded |
-| Result_Finalizer_Node | ✅ Succeeded |
+| Requirements_Generator | ✓ Succeeded |
+| Jira_Integration | ✓ Succeeded |
+| Master_Plan_Generator | ✓ Succeeded |
+| Design_Doc_Generator | ✓ Succeeded |
+| Result_Finalizer_Node | ✓ Succeeded |
 
-📸 **Figure 3: Execution history showing all nodes as Succeeded.** The run of `TM_Workflow_Final` shows SUCCEEDED, with the four assistants and the result finalizer each marked complete.
+**Figure 3: Execution history showing all nodes as Succeeded.** The run of `TM_Workflow_Final` shows SUCCEEDED, with the four assistants and the result finalizer each marked complete.
 
 ![Figure 3 – Workflow execution history](images/figure-03-execution-history.png)
 
@@ -93,14 +89,31 @@ The three states that write to Jira or Confluence pause for human approval first
 | # | Output | Produced by | Description |
 |---|---|---|---|
 | 1 | 5 requirements (ENH-13 to ENH-17) | Assistant 1 | Structured JSON with type, title, summary, Given-When-Then acceptance criteria and priority. |
-| 2 | 1 Jira Epic (EPMCDMETST-72136) | Assistant 2 | The parent container for all enhancements. |
+| 2 | 1 Jira Epic (EPMCDMETST-72136) | Assistant 2 | The Epic that groups all enhancements. The Stories are linked to it. |
 | 3 | 5 Jira Stories | Assistant 2 | One story per requirement. |
 | 4 | 15 Jira Sub-tasks | Assistant 2 | Implementation, Testing and Code Review for each story. |
 | 5 | Master Implementation Plan (Page ID 20021249) | Assistant 3 | A program-level plan or TDD in Confluence. |
 | 6 | 4 design pages (existing baseline) | Assistant 4 | Architecture Spec, HLD, LLD and Wireframes/UI in Confluence, referenced with their page IDs and links. |
 | 7 | Consolidated conversation summary | Result Finalizer | One record of the run with all IDs and links. |
 
-**Totals:** 21 Jira issues and 5 Confluence pages.
+**Totals:** 21 Jira issues, 1 new Confluence page (the Master Implementation Plan) and 4 referenced design pages.
+
+### 1.5 Skills used by Assistants 1 to 4
+
+CodeMie skills are reusable instruction sets that can be attached to an assistant. Four project skills were created for this workflow, one for each of Assistants 1 to 4. Each skill is attached in the assistant's skills configuration and is shared with the project.
+
+| Assistant | Skill | What the skill does |
+|---|---|---|
+| 1. Requirements Generator | `requirement-enhancement-generator` | Turns raw documentation or codebase context into structured, source-faithful requirements, output as valid JSON that matches the downstream Jira schema. |
+| 2. Jira Integration | `jira-creation-from-requirements` | Takes the structured requirements JSON and creates the Jira backlog in project EPMCDMETST (Epic, Stories, Sub-tasks), returning a JSON report with real issue keys and links. |
+| 3. Master Plan Generator | `master-implementation-plan-creation-confluence` | Reads the Jira backlog, writes a Master Implementation & Development Plan, publishes it to the validated Confluence space and folder, and returns JSON with working URLs and metadata. |
+| 4. Design Doc Generator | `design-specs-generation-to-confluence` | Reads the Jira backlog and the Confluence plan URL, produces the Architecture, HLD, LLD and Wireframes design specifications for the validated space and folder, and returns JSON with the page URLs. |
+
+Each skill follows the same structure: Purpose, Context, Instructions, Examples, Best Practices and Additional Notes.
+
+**Figure 4: Project Skills page in CodeMie.** The four skills used by Assistants 1 to 4 are shown.
+
+![Figure 4 – Skills created and used by Assistants 1 to 4](images/figure-23-skills-created-and-used.png)
 
 ---
 
@@ -111,12 +124,14 @@ The three states that write to Jira or Confluence pause for human approval first
 | **State ID** | `Requirements_Generator` |
 | **Assistant ID** | `ae3c9b28-a04f-47bd-bce2-6670e0d6f0d0` |
 | **Role** | Requirement and Enhancement Analyst |
+| **Skill** | `requirement-enhancement-generator` (attached in the assistant's skills configuration; see section 1.5) |
 
 **Description:** This assistant analyzes the source documentation and codebase. It extracts technical requirements and enhancements. It treats the provided data source as the absolute truth and does not assume facts outside it.
 
 **Purpose:** It is the entry point of the pipeline. It turns an open request into a prioritized, structured requirement set.
 
 **What it does:**
+
 - Analyzes the existing code (`backend/src/server.js`, `frontend/src/App.jsx`, `frontend/src/api.js`) and the baseline assessment.
 - Writes each requirement with an ID, type, title, summary, Given-When-Then acceptance criteria and priority.
 
@@ -133,11 +148,11 @@ The three states that write to Jira or Confluence pause for human approval first
 
 | Schema rule | Result |
 |---|---|
-| `project_key` const `EPMCDMETST` | ✅ |
-| `generated_timestamp` is a date-time | ✅ |
-| `requirements[]` has all required fields | ✅ 5 items |
-| `Requirement_Type` is an allowed enum value | ✅ |
-| `Requirement_Priority` is an integer ≥ 1 | ✅ 13 to 17 |
+| `project_key` const `EPMCDMETST` | ✓ |
+| `generated_timestamp` is a date-time | ✓ |
+| `requirements[]` has all required fields | ✓ 5 items |
+| `Requirement_Type` is an allowed enum value | ✓ |
+| `Requirement_Priority` is an integer ≥ 1 | ✓ 13 to 17 |
 
 **Generated output:**
 
@@ -151,12 +166,13 @@ The three states that write to Jira or Confluence pause for human approval first
 
 > **Sample acceptance criteria (ENH-13):** *Given* the UI shows a task that no longer exists on the server, *When* the user clicks Delete and the API returns `404 {"error":"task not found"}`, *Then* the UI shows the error and refreshes the list so the stale row is removed.
 
-📸 **Figure 4: Requirements Generator output (JSON).** The images below are rendered from the assistant's JSON output (the Result of the Requirements_Generator step), shown in two parts for readability. The values are unchanged; the "..." lines only mark where the output is split between the two images.
+**Figure 5: Requirements Generator output (JSON).** The images below are rendered from the assistant's JSON output (the Result of the Requirements_Generator step), shown in two parts for readability. The values are unchanged; the "..." lines only mark where the output is split between the two images.
 
-![Figure 4a – Requirements Generator output, part 1](images/figure-04a-requirements-output-part1.png)
+![Figure 5a – Requirements Generator output, part 1](images/figure-04a-requirements-output-part1.png)
 
-![Figure 4b – Requirements Generator output, part 2](images/figure-04b-requirements-output-part2.png)
-📄 **Evidence:** `2026-11-13_14-37-32.434_requirements_generator_succeeded.md`
+![Figure 5b – Requirements Generator output, part 2](images/figure-04b-requirements-output-part2.png)
+
+**Evidence:** `2026-11-13_14-37-32.434_requirements_generator_succeeded.md`
 
 ---
 
@@ -167,15 +183,17 @@ The three states that write to Jira or Confluence pause for human approval first
 | **State ID** | `Jira_Integration` |
 | **Assistant ID** | `b5e9a8cf-63c3-4b47-9b9f-074acdd24df6` |
 | **Role** | Agile Product Owner and Jira Integration Specialist |
-| **Human approval** | ✅ before execution |
+| **Skill** | `jira-creation-from-requirements` (attached in the assistant's skills configuration; see section 1.5) |
+| **Human approval** | ✓ before execution |
 
 **Description:** This assistant reads the requirements JSON. It uses its Jira tool to build the backlog in project `EPMCDMETST` and returns the real issue keys and links.
 
 **Purpose:** It turns requirements into trackable work items that are ready for sprint planning.
 
 **What it does:**
+
 1. Creates the Epic. It sets the Epic Name field `customfield_14501`.
-2. Creates one Story per requirement, using standard fields only.
+2. Creates one Story per requirement, using standard fields only. Each Story is linked to the Epic with a "relates to" link.
 3. Creates three Sub-tasks per Story: Implementation, Testing and Code Review.
 4. Captures every issue key and browse URL.
 
@@ -183,7 +201,7 @@ The three states that write to Jira or Confluence pause for human approval first
 
 | Instruction | Effect |
 |---|---|
-| Strict order: Epic → Stories → Sub-tasks | Gives the correct hierarchy. |
+| Strict order: Epic, then Stories linked to the Epic, then Sub-tasks under each Story | Gives a traceable hierarchy. |
 | Epic Name set via `customfield_14501` | Meets the Jira validation rule. |
 | Standard fields only for Stories | Avoids custom-field errors. |
 | Capture real keys and working URLs | Gives an audit trail. |
@@ -193,12 +211,13 @@ The three states that write to Jira or Confluence pause for human approval first
 
 | Schema rule | Result |
 |---|---|
-| `project_key` const `EPMCDMETST`, `generation_status` const `SUCCESS` | ✅ |
-| `epic` has id, name, summary, key and link | ✅ |
-| `user_stories[]` each with `source_requirement_id` | ✅ 5 stories mapped to ENH-13 to ENH-17 |
-| Nested `subtasks[]` | ✅ 3 per story (15 total) |
+| `project_key` const `EPMCDMETST`, `generation_status` const `SUCCESS` | ✓ |
+| `epic` has id, name, summary, key and link | ✓ |
+| `user_stories[]` each with `source_requirement_id` | ✓ 5 stories mapped to ENH-13 to ENH-17 |
+| Nested `subtasks[]` | ✓ 3 per story (15 total) |
 
 **Generated output:**
+
 **Epic:** [EPMCDMETST-72136](https://jiraeu.epam.com/browse/EPMCDMETST-72136), *Task Manager Application Enhancements*
 
 | Requirement | Story | Sub-tasks (Implementation / Testing / Code Review) |
@@ -209,15 +228,15 @@ The three states that write to Jira or Confluence pause for human approval first
 | ENH-16 | [EPMCDMETST-72149](https://jiraeu.epam.com/browse/EPMCDMETST-72149) | [72150](https://jiraeu.epam.com/browse/EPMCDMETST-72150) / [72151](https://jiraeu.epam.com/browse/EPMCDMETST-72151) / [72152](https://jiraeu.epam.com/browse/EPMCDMETST-72152) |
 | ENH-17 | [EPMCDMETST-72153](https://jiraeu.epam.com/browse/EPMCDMETST-72153) | [72154](https://jiraeu.epam.com/browse/EPMCDMETST-72154) / [72155](https://jiraeu.epam.com/browse/EPMCDMETST-72155) / [72156](https://jiraeu.epam.com/browse/EPMCDMETST-72156) |
 
-📸 **Figure 5: Jira Epic EPMCDMETST-72136 with its linked stories.** The Epic "Task Manager Application Enhancements" lists the five stories (EPMCDMETST-72137, 72141, 72145, 72149 and 72153) for ENH-13 to ENH-17. The linked bug EPMCDMETST-72213 appears as Resolved.
+**Figure 6: Jira Epic EPMCDMETST-72136 with its linked stories.** The Epic "Task Manager Application Enhancements" lists the five stories (EPMCDMETST-72137, 72141, 72145, 72149 and 72153) for ENH-13 to ENH-17. The linked bug EPMCDMETST-72213 appears as Resolved.
 
-![Figure 5 – Jira Epic EPMCDMETST-72136](images/figure-05-jira-epic.png)
+![Figure 6 – Jira Epic EPMCDMETST-72136](images/figure-05-jira-epic.png)
 
-📸 **Figure 6: A Story (EPMCDMETST-72137, ENH-13) with its 3 sub-tasks.** The Sub-Tasks section lists Implementation (72138), Testing (72139) and Code Review (72140). The story is linked to Epic EPMCDMETST-72136.
+**Figure 7: A Story (EPMCDMETST-72137, ENH-13) with its 3 sub-tasks.** The Sub-Tasks section lists Implementation (72138), Testing (72139) and Code Review (72140). The story is linked to Epic EPMCDMETST-72136.
 
-![Figure 6 – Jira story EPMCDMETST-72137 with sub-tasks](images/figure-06-jira-story-subtasks.png)
+![Figure 7 – Jira story EPMCDMETST-72137 with sub-tasks](images/figure-06-jira-story-subtasks.png)
 
-📄 **Evidence:** `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
+**Evidence:** `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
 
 ---
 
@@ -228,13 +247,15 @@ The three states that write to Jira or Confluence pause for human approval first
 | **State ID** | `Master_Plan_Generator` |
 | **Assistant ID** | `7ab86f41-b2b6-422f-a838-91c96b597dca` |
 | **Role** | Technical Program Manager and Enterprise Solutions Architect |
-| **Human approval** | ✅ before execution |
+| **Skill** | `master-implementation-plan-creation-confluence` (attached in the assistant's skills configuration; see section 1.5) |
+| **Human approval** | ✓ before execution |
 
 **Description:** This assistant reads the Jira backlog. It writes a complete Master Implementation & Development Plan, or Technical Design Document, and publishes it to Confluence.
 
 **Purpose:** It gives the team one program-level plan that links the Jira work to the delivery approach.
 
 **What it does:**
+
 - Consolidates the Epic, Stories and Sub-tasks.
 - Creates a page titled `Master Implementation Plan - EPMCDMETST - [Epic Title]`.
 - Returns the page metadata and URL as JSON.
@@ -248,7 +269,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | Verify the space key and folder ID before creating the page | A guardrail check. |
 | JSON-only response | Matches the schema. |
 
-**Output schema compliance (`ImplementationPlanGenerationOutput`):** ✅ The fixed (`const`) values match. These are the project key, status, document type, space key and folder ID. The page title, page ID and URL are filled in.
+**Output schema compliance (`ImplementationPlanGenerationOutput`):** ✓ The fixed (`const`) values match. These are the project key, status, document type, space key and folder ID. The page title, page ID and URL are filled in.
 
 **Generated output:**
 
@@ -259,11 +280,11 @@ The three states that write to Jira or Confluence pause for human approval first
 | Location | CMCP - Project Docs (folder `15269889`) |
 | Link | [Open page](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/20021249/Master+Implementation+Plan+-+EPMCDMETST+-+Task+Manager+Application+Enhancements) |
 
-📸 **Figure 7: Master Plan page in Confluence, with the folder breadcrumb.** The page "Master Implementation Plan - EPMCDMETST - Task Manager Application Enhancements" sits in the folder CMCP - Project Docs, next to the four design pages.
+**Figure 8: Master Plan page in Confluence, with the folder breadcrumb.** The page "Master Implementation Plan - EPMCDMETST - Task Manager Application Enhancements" sits in the folder CMCP - Project Docs, next to the four design pages.
 
-![Figure 7 – Master Plan page in Confluence](images/figure-08-master-plan-page.png)
+![Figure 8 – Master Plan page in Confluence](images/figure-08-master-plan-page.png)
 
-📄 **Evidence:** `2026-11-13_14-41-47.416_master_plan_generator_succeeded.md`
+**Evidence:** `2026-11-13_14-41-47.416_master_plan_generator_succeeded.md`
 
 ---
 
@@ -274,7 +295,8 @@ The three states that write to Jira or Confluence pause for human approval first
 | **State ID** | `Design_Doc_Generator` |
 | **Assistant ID** | `87273031-8387-4648-8d9d-c735d89f4624` |
 | **Role** | Enterprise Solutions Architect and UI/UX Designer |
-| **Human approval** | ✅ before execution |
+| **Skill** | `design-specs-generation-to-confluence` (attached in the assistant's skills configuration; see section 1.5) |
+| **Human approval** | ✓ before execution |
 
 **Description:** This assistant reads the Jira backlog and the published Master Plan. It returns the four design specification pages (Architecture, High-Level Design, Low-Level Design and Wireframes/UI) in the approved Confluence folder, with their page IDs and links.
 
@@ -294,7 +316,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | Four mandatory design artifacts | The package is complete (returned from the existing baseline pages). |
 | JSON with URLs for each page | Traceability. |
 
-**Output schema compliance (`DesignSpecificationsGenerationOutput`):** ✅ All required top-level fields are present. `design_documents[]` has 4 entries. Each has `doc_type`, `confluence_page_title`, `confluence_page_id` and `Confluence_URL`.
+**Output schema compliance (`DesignSpecificationsGenerationOutput`):** ✓ All required top-level fields are present. `design_documents[]` has 4 entries. Each has `doc_type`, `confluence_page_title`, `confluence_page_id` and `Confluence_URL`.
 
 **Generated output:**
 
@@ -305,23 +327,23 @@ The three states that write to Jira or Confluence pause for human approval first
 | LLD | LLD - EPMCDMETST | 19005441 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19005441/LLD+-+EPMCDMETST) |
 | Wireframes / UI | Wireframes & UI - EPMCDMETST | 19038209 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19038209/Wireframes+UI+-+EPMCDMETST) |
 
-📸 **Figure 8: Architecture Spec page.** One of the four existing design pages (created 12 Nov 2026, story EPMCDMETST-71759) returned by Assistant 4.
+**Figure 9: Architecture Spec page.** One of the four existing design pages (created 12 Nov 2026, story EPMCDMETST-71759) returned by Assistant 4.
 
-![Figure 8 – Architecture Spec page](images/figure-08-architecture-spec.png)
+![Figure 9 – Architecture Spec page](images/figure-08-architecture-spec.png)
 
-📸 **Figure 9: High-Level Design (HLD) page.**
+**Figure 10: High-Level Design (HLD) page.**
 
-![Figure 9 – HLD page](images/figure-09-hld.png)
+![Figure 10 – HLD page](images/figure-09-hld.png)
 
-📸 **Figure 10: Low-Level Design (LLD) page.**
+**Figure 11: Low-Level Design (LLD) page.**
 
-![Figure 10 – LLD page](images/figure-10-lld.png)
+![Figure 11 – LLD page](images/figure-10-lld.png)
 
-📸 **Figure 11: Wireframes & UI page.**
+**Figure 12: Wireframes & UI page.**
 
-![Figure 11 – Wireframes & UI page](images/figure-11-wireframes-ui.png)
+![Figure 12 – Wireframes & UI page](images/figure-11-wireframes-ui.png)
 
-📄 **Evidence:** `2026-11-13_14-46-46.448_design_doc_generator_succeeded.md`
+**Evidence:** `2026-11-13_14-46-46.448_design_doc_generator_succeeded.md`
 
 ---
 
@@ -330,27 +352,28 @@ The three states that write to Jira or Confluence pause for human approval first
 **Description:** This is the final consolidation step in the execution history. It is not one of the four YAML assistant states. It reads the full conversation and produces a **Detailed Conversation Summary**.
 
 **What it contains:**
+
 - The original request.
 - A recap of each assistant's output, with IDs and links.
 - Consolidated facts: the referenced files, the five enhancement themes, and all Jira and Confluence identifiers.
 
 **Value:** A reviewer can read it first to see the whole run at a glance.
 
-📸 **Figure 12: Finalizer summary.** The Execution State Output of `result_finalizer_node`, shown in six parts (12a to 12f) because the summary is long. The finalizer summarises the assistants' JSON outputs from the conversation only. The Jira issues it lists are shown in Figures 5 and 6, and the Master Plan page in Figure 7.
+**Figure 13: Finalizer summary.** The Execution State Output of `result_finalizer_node`, shown in six parts (13a to 13f) because the summary is long. The finalizer summarises the assistants' JSON outputs from the conversation only. The Jira issues it lists are shown in Figures 6 and 7, and the Master Plan page in Figure 8.
 
-![Figure 12a – Finalizer summary, part 1](images/figure-12-finalizer-summary-img01.png)
+![Figure 13a – Finalizer summary, part 1](images/figure-12-finalizer-summary-img01.png)
 
-![Figure 12b – Finalizer summary, part 2](images/figure-12-finalizer-summary-img02.png)
+![Figure 13b – Finalizer summary, part 2](images/figure-12-finalizer-summary-img02.png)
 
-![Figure 12c – Finalizer summary, part 3](images/figure-12-finalizer-summary-img03.png)
+![Figure 13c – Finalizer summary, part 3](images/figure-12-finalizer-summary-img03.png)
 
-![Figure 12d – Finalizer summary, part 4](images/figure-12-finalizer-summary-img04.png)
+![Figure 13d – Finalizer summary, part 4](images/figure-12-finalizer-summary-img04.png)
 
-![Figure 12e – Finalizer summary, part 5](images/figure-12-finalizer-summary-img05.png)
+![Figure 13e – Finalizer summary, part 5](images/figure-12-finalizer-summary-img05.png)
 
-![Figure 12f – Finalizer summary, part 6](images/figure-12-finalizer-summary-img06.png)
+![Figure 13f – Finalizer summary, part 6](images/figure-12-finalizer-summary-img06.png)
 
-📄 **Evidence:** `2026-11-13_14-47-14.570_result_finalizer_node_succeeded.md`
+**Evidence:** `2026-11-13_14-47-14.570_result_finalizer_node_succeeded.md`
 
 ---
 
@@ -372,15 +395,20 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 
 | # | Criterion | Result | Where to look |
 |---|---|---|---|
-| 1 | Multiple chained assistants | ✅ 4, sequential | YAML `states` |
-| 2 | Clear role and instructions per assistant | ✅ | Sections 2 to 5 |
-| 3 | Structured output via JSON Schema | ✅ | YAML `output_schema` |
-| 4 | Outputs conform to the schema | ✅ | Sections 2 to 5 |
-| 5 | Jira and Confluence integration | ✅ | Sections 3 to 5 |
-| 6 | Guardrails (placement, verification, `const` fields) | ✅ | Sections 4 and 5 |
-| 7 | Human-in-the-loop approvals | ✅ 3 states | Section 1.2 |
-| 8 | End-to-end execution succeeded | ✅ | Section 1.3 |
-| 9 | Traceable artifacts | ✅ 21 Jira issues and 5 Confluence pages | Section 7 |
+| 1 | Multiple chained assistants | ✓ 4, sequential | YAML `states` |
+| 2 | Clear role and instructions per assistant | ✓ | Sections 2 to 5 |
+| 3 | Structured output via JSON Schema | ✓ | YAML `output_schema` |
+| 4 | Outputs conform to the schema | ✓ | Sections 2 to 5 |
+| 5 | Jira and Confluence integration | ✓ | Sections 3 to 5 |
+| 6 | Guardrails (placement, verification, `const` fields) | ✓ | Sections 4 and 5 |
+| 7 | Human-in-the-loop approvals | ✓ 3 states | Section 1.2 |
+| 8 | End-to-end execution succeeded | ✓ | Section 1.3 |
+| 9 | Traceable artifacts | ✓ 21 Jira issues, 1 new Confluence page and 4 referenced design pages | Section 7 |
+| 10 | Code implemented and delivered through reviewed pull requests | ✓ Assistants 5 and 6 | Sections 10 and 11 |
+| 11 | Automated tests executed and results recorded | ✓ Assistant 7: backend 65/65, BDD 181/181 | Section 12 |
+| 12 | Defect found, fixed and retested | ✓ Bug EPMCDMETST-72213 (PR #12) | Sections 10 to 12 |
+| 13 | Local build and launch verified | ✓ Assistant 8 | Section 13 |
+| 14 | Reusable skills created and attached to Assistants 1 to 4 | ✓ One skill per assistant | Section 1.5 |
 
 **Evidence files** (the step output files are in `Project_Summary/Evidences/`):
 - `TM_Workflow_Final_YAML.yml`
@@ -412,7 +440,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | **Role** | Developer implementation assistant for CMCP-TaskManagerApplication |
 | **Model** | `gpt-5-2-2025-12-11` |
 | **Invoked via** | Registered with `codemie assistants setup` and run manually in the Claude Code CLI in VS Code |
-| **Human approval** | ✅ Mandatory Epic/Story confirmation before any code is written |
+| **Human approval** | ✓ Mandatory Epic/Story confirmation before any code is written |
 | **Input from** | Assistants 2, 3 and 4 (Jira backlog, Master Plan, design pages) |
 
 **Description:** This assistant implements the selected Epics and user stories. It uses the Confluence blueprint pages as its baseline and follows the repo's existing stack and conventions.
@@ -420,6 +448,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 **Purpose:** It turns the planning and design output into code on a feature branch.
 
 **What it does:**
+
 1. Reads the Epic or story and its acceptance criteria.
 2. Finds the System Architecture and Technical Implementation Plan pages in Confluence.
 3. Inspects the repo, then designs and implements backend and frontend changes with tests.
@@ -448,12 +477,13 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 
 **Jira keys:** Epic EPMCDMETST-70517 with stories 70518 and 70519 (ENH-01); Epic EPMCDMETST-72136 (PR #6 fix).
 
-📸 **Figure 13:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
+**Figure 14:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
 
-![Figure 13 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
-📸 **Figure 14:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
+![Figure 14 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
 
-![Figure 14 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
+**Figure 15:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
+
+![Figure 15 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
 
 ---
 
@@ -472,6 +502,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 **Purpose:** It is the quality gate between implementation and testing.
 
 **What it does:**
+
 1. Fetches PR metadata and the diff through `github_pranav`.
 2. Reviews for correctness, security, performance, maintainability, tests and docs. It reports must-fix items, suggestions and open questions.
 3. Requests changes when must-fix items exist. Otherwise it approves (where GitHub allows) and merges when the user asks for a merge.
@@ -503,13 +534,13 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 
 **Earlier reviews:** PRs #1, #2 and #3 (4 and 12 Nov 2026) were reviewed by this assistant and merged manually as merge commits `ce7c336`, `906c9ec` and `0f41bf9`.
 
-📸 **Figure 15:** Assistant 6's review summary on PR #6.
+**Figure 16:** Assistant 6's review summary on PR #6.
 
-![Figure 15 – PR #6 review](images/figure-16-pr6-review.png)
+![Figure 16 – PR #6 review](images/figure-16-pr6-review.png)
 
-📸 **Figure 16:** PR #6 in the Merged state.
+**Figure 17:** PR #6 in the Merged state.
 
-![Figure 16 – PR #6 merged](images/figure-17-pr6-merged.png)
+![Figure 17 – PR #6 merged](images/figure-17-pr6-merged.png)
 
 ---
 
@@ -528,6 +559,7 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 **Purpose:** It verifies the implementation against the acceptance criteria and records the results.
 
 **What it does:**
+
 1. Reads stories from Jira `EPMCDMETST` and specs from the Confluence space.
 2. Writes features, step definitions and page objects under `/tests/bdd`.
 3. Runs `npx playwright test`, with reports under `/tests/Test Execution & Reporting`.
@@ -588,17 +620,17 @@ Assistant 7 then commented the retest result on each issue and moved it to **Res
 
 The issues are left in Resolved, for the reviewer to verify and Close.
 
-📸 **Figure 17:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
+**Figure 18:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
 
-![Figure 17 – Playwright HTML report](images/figure-18-playwright-report.png)
+![Figure 18 – Playwright HTML report](images/figure-18-playwright-report.png)
 
-📸 **Figure 18:** Assistant 7's retest comment on EPMCDMETST-72162 in Jira (17 Nov 2026), with the Run Cycle 04, Test Execution Summary and Test Plan links.
+**Figure 19:** Assistant 7's retest comment on EPMCDMETST-72162 in Jira (17 Nov 2026), with the Run Cycle 04, Test Execution Summary and Test Plan links.
 
-![Figure 18 – Jira comment on EPMCDMETST-72162](images/figure-19-jira-comment-EPMCDMETST-72162.png)
+![Figure 19 – Jira comment on EPMCDMETST-72162](images/figure-19-jira-comment-EPMCDMETST-72162.png)
 
-📸 **Figure 19:** Confluence page tree under "Automation Testing Artifacts": Run Cycles 01 to 04, with Run Cycle 04 (`2026-11-17 11-48-13`) and its Test Plan and Test Execution Summary pages.
+**Figure 20:** Confluence page tree under "Automation Testing Artifacts": Run Cycles 01 to 04, with Run Cycle 04 (`2026-11-17 11-48-13`) and its Test Plan and Test Execution Summary pages.
 
-![Figure 19 – Confluence Run Cycle 04 page tree](images/figure-20-confluence-run-cycle-04-page-tree.png)
+![Figure 20 – Confluence Run Cycle 04 page tree](images/figure-20-confluence-run-cycle-04-page-tree.png)
 
 ---
 
@@ -617,6 +649,7 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 **Purpose:** It is the final stage. It confirms the merged code builds and runs, and records the result on a branch.
 
 **What it does:**
+
 1. Checks the project and Git state, installs dependencies and runs the build.
 2. Fixes errors on its own and re-runs until the build passes.
 3. Commits and pushes, then launches the app and verifies the endpoints.
@@ -651,12 +684,13 @@ The issues are left in Resolved, for the reviewer to verify and Close.
   "files_committed": ["build/BUILD_INFO.md"], "pushed": true, "pr_opened": false }
 ```
 
-📸 **Figure 20:** Build and test output, re-run on 17 Nov 2026 against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
+**Figure 21:** Build and test output, re-run on 17 Nov 2026 against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
 
-![Figure 20 – Build and test output](images/figure-21-build-output.png)
-📸 **Figure 21:** Application running locally on `localhost:5173` (sample tasks added for the capture).
+![Figure 21 – Build and test output](images/figure-21-build-output.png)
 
-![Figure 21 – Running application](images/figure-22-running-app.png)
+**Figure 22:** Application running locally on `localhost:5173` (sample tasks added for the capture).
+
+![Figure 22 – Running application](images/figure-22-running-app.png)
 
 ---
 
