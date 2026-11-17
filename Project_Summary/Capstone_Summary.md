@@ -401,7 +401,9 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 
 **Jira keys:** Epic EPMCDMETST-70517 with stories 70518 and 70519 (ENH-01); Epic EPMCDMETST-72136 (PR #6 fix).
 
-📸 **Figure 14:** Epic/Story confirmation prompt. *(Insert screenshot.)*
+📸 **Figure 14:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
+
+![Figure 14 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
 📸 **Figure 15:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
 
 ![Figure 15 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
@@ -503,8 +505,9 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 |---|---|---|
 | ENH-01 | 12 Nov 2026 | **123/123 passed.** 8 features, 88 scenarios, 75 step definitions. Merged through [PR #4](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/4) as `9b0357c`. |
 | PR #6 (EPMCDMETST-72136 and 72162) | 13 Nov 2026, 22:25 to 22:31 IST | It wrote 4 feature files (54 test cases) under `tests/bdd/features/epmcdmetst-72136/` and `epmcdmetst-72162/`. `results.json` and `junit.xml` show **181 tests: 180 passed, 1 flagged**. |
+| Full retest after the bug fix | 17 Nov 2026 | On `main` at `d726587` (includes the fix in PR #12): backend **65/65**, BDD **181 passed, 0 failed, 0 skipped** (chromium, 48.7 s). |
 
-**Defect surfaced by the run:** One scenario, "Pasting astral characters is clamped by code points (ENH-16)", showed that the native `maxLength={200}` on the add-task input clamps emoji titles at 100 code points. The assistant logged it as Jira bug [EPMCDMETST-72213](https://jiraeu.epam.com/browse/EPMCDMETST-72213) for follow-up, linked to EPMCDMETST-72136, 72161, 72162, 72163 and 72164.
+**Defect surfaced by the run:** One scenario, "Pasting astral characters is clamped by code points (ENH-16)", showed that the native `maxLength={200}` on the add-task input clamps emoji titles at 100 code points. The assistant logged it as Jira bug [EPMCDMETST-72213](https://jiraeu.epam.com/browse/EPMCDMETST-72213) for follow-up, linked to EPMCDMETST-72136, 72161, 72162, 72163 and 72164. The bug was fixed by Assistant 5 and merged by Assistant 6 in [PR #12](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/12) (fix commit `77a9cc4`, merge commit [`d726587`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/d72658738bc4813b2b65c6593032cdbdc7c33eb9)). The native `maxLength` was removed so the code-point clamp is the only limiter at 200, and the scenario was re-enabled.
 
 **Jira:** The run summary was commented on EPMCDMETST-72136, 72161, 72162, 72163 and 72164.
 
@@ -512,13 +515,39 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 
 **Attachments:** `html-report.zip`, `results.json` and `junit.xml` are attached to the Confluence pages and to Jira EPMCDMETST-72213, 72162, 72163 and 72164.
 
-**Test assets:** The PR #6 feature files, step definitions and page-object updates were merged to `main` in [PR #9](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/9) (merge commit [`b7e7b76`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/b7e7b763cd250ff37010aab392e01b506e11aedc), 17 Nov 2026), under `tests/bdd/`. The CI `bdd` check on that PR passed with 180 scenarios passed and 1 skipped. The skipped scenario is tagged `@fixme @EPMCDMETST-72213` until the add-input fix lands. Reports are in `tests/Test Execution & Reporting/`.
+**Test assets:** The PR #6 feature files, step definitions and page-object updates were merged to `main` in [PR #9](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/9) (merge commit [`b7e7b76`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/b7e7b763cd250ff37010aab392e01b506e11aedc), 17 Nov 2026), under `tests/bdd/`. The CI `bdd` check on that PR passed with 180 scenarios passed and 1 skipped. The one skipped scenario was tagged `@fixme @EPMCDMETST-72213` until the add-input fix landed; PR #12 removed the tag. Reports are in `tests/Test Execution & Reporting/`.
+
+**Full retest and Jira closure (17 Nov 2026):** After PR #12, Assistant 7 re-ran the whole suite on `main` at `d726587` and published [Run Cycle 04](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/21168130/Run+Cycle+04+-+2026-11-17+00-00-00) with its [Test Plan (Automation)](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/21200897/Test+Plan+Automation+-+Run+Cycle+04) and [Test Execution Summary](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/21233665/Test+Execution+Summary+-+Run+Cycle+04).
+
+| Check | Result |
+|---|---|
+| Backend | 65/65 passed |
+| BDD (all features) | 181 passed, 0 failed, 0 skipped, 0 flaky |
+| EPMCDMETST-72162, criterion 1: valid status gives 201 with that status | 3/3 passed |
+| EPMCDMETST-72162, criterion 2: missing or falsy status gives 201 with `todo` | 4/4 passed |
+| EPMCDMETST-72162, criterion 3: invalid or non-string status gives 400 and no task created | 9/9 passed, plus 3 related scenarios |
+| `post-status-api.feature` | 17/17 passed |
+| Bug EPMCDMETST-72213 retest ("Pasting astral characters is clamped by code points"; "accepts exactly 200 ASCII characters") | Both passed |
+
+Assistant 7 then commented the retest result on each issue and moved it to **Resolved**:
+
+| Issue | Comment ID | Resolution |
+|---|---|---|
+| [EPMCDMETST-72163](https://jiraeu.epam.com/browse/EPMCDMETST-72163) (Implementation) | 16100332 | Done |
+| [EPMCDMETST-72164](https://jiraeu.epam.com/browse/EPMCDMETST-72164) (Testing) | 16100400 | Done |
+| [EPMCDMETST-72165](https://jiraeu.epam.com/browse/EPMCDMETST-72165) (Code Review) | 16100405 | Done |
+| [EPMCDMETST-72162](https://jiraeu.epam.com/browse/EPMCDMETST-72162) (Story) | 16100338 | Done |
+| [EPMCDMETST-72213](https://jiraeu.epam.com/browse/EPMCDMETST-72213) (Bug) | 16100340 | Fixed |
+
+The issues are left in Resolved, for the reviewer to verify and Close.
 
 📸 **Figure 18:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
 
 ![Figure 18 – Playwright HTML report](images/figure-18-playwright-report.png)
+
 📸 **Figure 19:** Jira comment on EPMCDMETST-72162. *(Insert screenshot.)*
-📸 **Figure 20:** Confluence Run Cycle 03 page tree. *(Insert screenshot.)*
+
+📸 **Figure 20:** Confluence Run Cycle page tree. *(Insert screenshot.)*
 
 ---
 
@@ -591,7 +620,7 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 | 7 | Playwright-BDD Test Generator | Code, Jira stories, Confluence specs | Features, test run, Jira and Confluence updates |
 | 8 | Local Build & Git Deployment | Merged `main` | Build and test results, build branch |
 
-**Actual run timeline for PR #6 (EPMCDMETST-72136 and 72162):**
+**Actual run timeline (PR #6 and PR #12; EPMCDMETST-72136, 72162 and 72213):**
 
 | When | Assistant | Action | Reference |
 |---|---|---|---|
@@ -600,6 +629,10 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 | 17 Nov 2026 | 5 | Fix for the review's high finding | `d3f5b1b` |
 | 17 Nov 2026, 08:54 UTC | 6 | Re-review and merge of PR #6 | `16ae960` |
 | 17 Nov 2026 | 8 | Build, tests, local launch, push to a new branch | `1ed8a6b` on `build/artifacts-72136` |
+| 17 Nov 2026 | 5 | Fix for bug EPMCDMETST-72213 (native `maxLength` removed, scenario re-enabled) | `77a9cc4` |
+| 17 Nov 2026, 11:45 UTC | 6 | Review and merge of PR #12 (`bdd` check: 181 passed) | [PR #12](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/12), `d726587` |
+| 17 Nov 2026 | 7 | Full retest on `main`: backend 65/65, BDD 181/181; Run Cycle 04 published | Confluence page 21168130 |
+| 17 Nov 2026 | 7 (Jira tool) | Retest comments on 72163, 72164, 72165, 72162 and 72213; all moved to Resolved | Comment IDs 16100332, 16100400, 16100405, 16100338, 16100340 |
 
 **Links to the earlier workflow:** Assistants 5 to 8 take their requirements and plans from the Jira backlog (Epic EPMCDMETST-72136, produced by Assistant 2), the Master Plan (page 20021249, Assistant 3) and the design pages (Assistant 4) described in sections 3 to 5.
 
