@@ -49,7 +49,7 @@ This workflow turns one plain-language request into a traceable delivery package
 1. **Requirements Generator** analyzes the application and writes structured requirements.
 2. **Jira Integration** creates the backlog (Epic → Stories → Sub-tasks).
 3. **Master Plan Generator** publishes a Master Implementation Plan to Confluence.
-4. **Design Doc Generator** publishes the Architecture, HLD, LLD and Wireframe pages to Confluence.
+4. **Design Doc Generator** returns the Architecture, HLD, LLD and Wireframe design pages in Confluence. These pages already existed from an earlier run and serve as the design baseline (see section 5).
 
 Each assistant reads the previous assistant's JSON output. It returns JSON that matches its own **JSON Schema (draft-07)**.
 
@@ -97,7 +97,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | 3 | 5 Jira Stories | Assistant 2 | One story per requirement. |
 | 4 | 15 Jira Sub-tasks | Assistant 2 | Implementation, Testing and Code Review for each story. |
 | 5 | Master Implementation Plan (Page ID 20021249) | Assistant 3 | A program-level plan or TDD in Confluence. |
-| 6 | 4 design pages | Assistant 4 | Architecture Spec, HLD, LLD and Wireframes/UI in Confluence. |
+| 6 | 4 design pages (existing baseline) | Assistant 4 | Architecture Spec, HLD, LLD and Wireframes/UI in Confluence, referenced with their page IDs and links. |
 | 7 | Consolidated conversation summary | Result Finalizer | One record of the run with all IDs and links. |
 
 **Totals:** 21 Jira issues and 5 Confluence pages.
@@ -276,11 +276,13 @@ The three states that write to Jira or Confluence pause for human approval first
 | **Role** | Enterprise Solutions Architect and UI/UX Designer |
 | **Human approval** | ✅ before execution |
 
-**Description:** This assistant reads the Jira backlog and the published Master Plan. It produces four design specifications and publishes them to Confluence.
+**Description:** This assistant reads the Jira backlog and the published Master Plan. It returns the four design specification pages (Architecture, High-Level Design, Low-Level Design and Wireframes/UI) in the approved Confluence folder, with their page IDs and links.
 
 **Purpose:** It gives developers a technical blueprint before implementation. The blueprint covers system structure, component design and UI.
 
-**What it does:** It creates Architecture Diagram & Overview, High-Level Design, Low-Level Design and Wireframes/UI pages.
+**What it does:** It lists Architecture Diagram & Overview, High-Level Design, Low-Level Design and Wireframes/UI pages in the approved folder.
+
+**Design baseline note:** Confluence page titles must be unique within a space. The four design pages in this run (titles ending in `- EPMCDMETST`) already existed from an earlier run on 12 Nov 2026, created for story EPMCDMETST-71759 (Create Task via `POST /api/tasks`). The assistant's output returned those pages, and they were not regenerated or edited for Epic EPMCDMETST-72136. The Master Plan page (20021249, section 4) is the page created in this run for Epic 72136.
 
 **Key instructions:**
 
@@ -289,7 +291,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | Inputs are the Jira backlog and the Master Plan | Keeps designs consistent with the plan. |
 | Same strict space and folder constraint | Pages land in the approved location. |
 | Verify before creating pages | A guardrail check. |
-| Four mandatory design artifacts | The package is complete. |
+| Four mandatory design artifacts | The package is complete (returned from the existing baseline pages). |
 | JSON with URLs for each page | Traceability. |
 
 **Output schema compliance (`DesignSpecificationsGenerationOutput`):** ✅ All required top-level fields are present. `design_documents[]` has 4 entries. Each has `doc_type`, `confluence_page_title`, `confluence_page_id` and `Confluence_URL`.
@@ -303,7 +305,22 @@ The three states that write to Jira or Confluence pause for human approval first
 | LLD | LLD - EPMCDMETST | 19005441 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19005441/LLD+-+EPMCDMETST) |
 | Wireframes / UI | Wireframes & UI - EPMCDMETST | 19038209 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19038209/Wireframes+UI+-+EPMCDMETST) |
 
-📸 **Figures 8 to 11:** Architecture, HLD, LLD and Wireframes pages.
+📸 **Figure 8: Architecture Spec page.** One of the four existing design pages (created 12 Nov 2026, story EPMCDMETST-71759) returned by Assistant 4.
+
+![Figure 8 – Architecture Spec page](images/figure-08-architecture-spec.png)
+
+📸 **Figure 9: High-Level Design (HLD) page.**
+
+![Figure 9 – HLD page](images/figure-09-hld.png)
+
+📸 **Figure 10: Low-Level Design (LLD) page.**
+
+![Figure 10 – LLD page](images/figure-10-lld.png)
+
+📸 **Figure 11: Wireframes & UI page.**
+
+![Figure 11 – Wireframes & UI page](images/figure-11-wireframes-ui.png)
+
 📄 **Evidence:** `2026-11-13_14-46-46.448_design_doc_generator_succeeded.md`
 
 ---
@@ -334,7 +351,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | ENH-16: Title max length | Validation | EPMCDMETST-72149 | 72150 to 72152 |
 | ENH-17: Configurable CORS | Security/Auth | EPMCDMETST-72153 | 72154 to 72156 |
 
-All five stories feed the Master Plan (Confluence 20021249) and the four design pages (18972673, 18874407, 19005441, 19038209).
+All five stories feed the Master Plan (Confluence 20021249). The four design pages (18972673, 18874407, 19005441, 19038209) are referenced as the design baseline; they were created earlier for story EPMCDMETST-71759.
 
 ---
 
@@ -352,7 +369,7 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 | 8 | End-to-end execution succeeded | ✅ | Section 1.3 |
 | 9 | Traceable artifacts | ✅ 21 Jira issues and 5 Confluence pages | Section 7 |
 
-**Evidence files:**
+**Evidence files** (the step output files are in `Project_Summary/Evidences/`):
 - `TM_Workflow_Final_YAML.yml`
 - `2026-11-13_14-37-32.434_requirements_generator_succeeded.md`
 - `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
@@ -369,7 +386,8 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 - **Single placement location:** Both Confluence assistants write only to the CMCP - Project Docs folder.
 - **Traceability:** Each story carries a `source_requirement_id` that maps it to its requirement.
 - **Backward compatibility:** ENH-17 keeps allow-all CORS as the default. ENH-15 keeps the `{error}` JSON contract.
-- **Scope:** The workflow covers requirements, planning and design. It does not change application code.
+- **Design page reuse:** Confluence page titles must be unique within a space, so the design pages from an earlier run (titles ending in `- EPMCDMETST`) were returned instead of new ones. Epic-specific titles, for example "Architecture Spec - EPMCDMETST-72136", would let each run create its own design pages.
+- **Scope:** The workflow of Assistants 1 to 4 covers requirements, planning and design. It does not change application code. The implementation, review, testing and build steps are covered by Assistants 5 to 8 (sections 10 to 14).
 
 ---
 
