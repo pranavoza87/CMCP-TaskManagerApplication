@@ -29,6 +29,24 @@ Feature: Task REST API (list, create, delete)
     Then the response status is 201
     And the response task has status "in_progress"
 
+  Scenario Outline: Creating a task with each allowed status (EPMCDMETST-72162)
+    When I create a task titled "Status check" with status "<status>"
+    Then the response status is 201
+    And the response task has status "<status>"
+
+    Examples:
+      | status      |
+      | todo        |
+      | in_progress |
+      | done        |
+
+  Scenario: Creating a task with an invalid status is rejected and nothing is created (EPMCDMETST-72162)
+    When I create a task titled "Bad status" with status "anything"
+    Then the response status is 400
+    And the legacy error text is "status must be one of: todo, in_progress, done"
+    When I list all tasks
+    Then the response lists 0 tasks
+
   Scenario: Creating a task with an empty title is rejected
     When I create a task titled ""
     Then the response status is 400
