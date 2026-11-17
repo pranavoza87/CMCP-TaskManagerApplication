@@ -3,7 +3,8 @@ import { getTasks, addTask, updateTask, deleteTask } from './api.js';
 
 // Same limit and measure as the API: 200 characters, counted in code points (an emoji counts as one, but one with
 // a variation selector or a ZWJ sequence counts as several).
-// The native maxLength attribute counts UTF-16 code units, so the limit is applied here instead.
+// The native maxLength attribute counts UTF-16 code units (an emoji would count as 2), so it is deliberately not
+// used; this clamp is the single limiter.
 const TITLE_MAX_LENGTH = 200;
 const clampTitle = (value) => {
   const chars = [...value];
@@ -204,8 +205,6 @@ export default function App() {
           value={title}
           onChange={(e) => setTitle(clampTitle(e.target.value))}
           placeholder="New task title"
-          // NOTE: native maxLength counts UTF-16 code units; we still clamp by code points in JS for consistency.
-          maxLength={TITLE_MAX_LENGTH}
         />
         <button type="submit">Add</button>
       </form>

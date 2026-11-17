@@ -6,9 +6,10 @@ Feature: Add-field length limit and delete resiliency in the UI
     Given the task list is empty
 
   @ENH-16
-  Scenario: The new task field declares a maxLength of 200
+  Scenario: The new task field accepts exactly 200 ASCII characters
     Given I open the task manager
-    Then the new task field has a maxLength of 200
+    When I type 200 copies of "letter a" into the new task field
+    Then the new task field has 200 code points
 
   @ENH-16
   Scenario: Pasting more than 200 characters is clamped
@@ -22,9 +23,7 @@ Feature: Add-field length limit and delete resiliency in the UI
     When I type 205 copies of "letter a" into the new task field
     Then the new task field has 200 code points
 
-  # Known issue EPMCDMETST-72213: the native maxLength={200} on the add input clamps emoji at 100 code points.
-  # Skipped until the input is fixed; remove @fixme then.
-  @ENH-16 @fixme @EPMCDMETST-72213
+  @ENH-16 @EPMCDMETST-72213
   Scenario: Pasting astral characters is clamped by code points
     Given I open the task manager
     When I paste 250 copies of "grinning emoji" into the new task field
