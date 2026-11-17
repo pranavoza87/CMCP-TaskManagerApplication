@@ -512,7 +512,7 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 
 **Attachments:** `html-report.zip`, `results.json` and `junit.xml` are attached to the Confluence pages and to Jira EPMCDMETST-72213, 72162, 72163 and 72164.
 
-**Test assets:** The PR #6 feature files, step definitions and page-object updates are in the working tree under `tests/bdd/`. Reports are in `tests/Test Execution & Reporting/`. Committing them to the repository is a tracked follow-up step.
+**Test assets:** The PR #6 feature files, step definitions and page-object updates were merged to `main` in [PR #9](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/9) (merge commit [`b7e7b76`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/b7e7b763cd250ff37010aab392e01b506e11aedc), 17 Nov 2026), under `tests/bdd/`. The CI `bdd` check on that PR passed with 180 scenarios passed and 1 skipped. The skipped scenario is tagged `@fixme @EPMCDMETST-72213` until the add-input fix lands. Reports are in `tests/Test Execution & Reporting/`.
 
 📸 **Figure 18:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
 
