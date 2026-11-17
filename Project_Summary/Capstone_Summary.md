@@ -402,7 +402,9 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 **Jira keys:** Epic EPMCDMETST-70517 with stories 70518 and 70519 (ENH-01); Epic EPMCDMETST-72136 (PR #6 fix).
 
 📸 **Figure 14:** Epic/Story confirmation prompt. *(Insert screenshot.)*
-📸 **Figure 15:** Commit `d3f5b1b` on `feature01`. *(Insert screenshot.)*
+📸 **Figure 15:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
+
+![Figure 15 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
 
 ---
 
@@ -452,8 +454,13 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 
 **Earlier reviews:** PRs #1, #2 and #3 (4 and 12 Nov 2026) were reviewed by this assistant and merged manually as merge commits `ce7c336`, `906c9ec` and `0f41bf9`.
 
-📸 **Figure 16:** Review comments on PR #6. *(Insert screenshot.)*
-📸 **Figure 17:** Merged PR #6. *(Insert screenshot.)*
+📸 **Figure 16:** Assistant 6's review summary on PR #6.
+
+![Figure 16 – PR #6 review](images/figure-16-pr6-review.png)
+
+📸 **Figure 17:** PR #6 in the Merged state.
+
+![Figure 17 – PR #6 merged](images/figure-17-pr6-merged.png)
 
 ---
 
@@ -507,7 +514,9 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 
 **Test assets:** The PR #6 feature files, step definitions and page-object updates are in the working tree under `tests/bdd/`. Reports are in `tests/Test Execution & Reporting/`. Committing them to the repository is a tracked follow-up step.
 
-📸 **Figure 18:** Playwright HTML report. *(Insert screenshot.)*
+📸 **Figure 18:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
+
+![Figure 18 – Playwright HTML report](images/figure-18-playwright-report.png)
 📸 **Figure 19:** Jira comment on EPMCDMETST-72162. *(Insert screenshot.)*
 📸 **Figure 20:** Confluence Run Cycle 03 page tree. *(Insert screenshot.)*
 
@@ -562,8 +571,12 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
   "files_committed": ["build/BUILD_INFO.md"], "pushed": true, "pr_opened": false }
 ```
 
-📸 **Figure 21:** Build and test output. *(Insert screenshot.)*
-📸 **Figure 22:** Running application on `localhost:5173`. *(Insert screenshot.)*
+📸 **Figure 21:** Build and test output, re-run on 17 Nov 2026 09:46 UTC against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
+
+![Figure 21 – Build and test output](images/figure-21-build-output.png)
+📸 **Figure 22:** Application running locally on `localhost:5173` (sample tasks added for the capture).
+
+![Figure 22 – Running application](images/figure-22-running-app.png)
 
 ---
 
