@@ -7,11 +7,11 @@
 
 ## Files (bytes)
 
-- backend/package.json (348)
-- backend/package-lock.json (47378)
-- backend/src/db.js (427)
-- backend/src/server.js (7303)
-- backend/src/validation.js (4761)
+- backend/package.json (332)
+- backend/package-lock.json (46087)
+- backend/src/db.js (410)
+- backend/src/server.js (7118)
+- backend/src/validation.js (4656)
 - frontend/dist/assets/index-CIpWniYf.css (697)
 - frontend/dist/assets/index-DJUvbRUt.js (146240)
 - frontend/dist/index.html (409)
@@ -20,5 +20,5 @@
 ## Archive
 
 - File: task-manager-deploy-d440e32.zip
-- Size: 67225 bytes
-- SHA-256: 4dd07de80b767732891e33adfc50f993a6765e7b6227c23dca5578b579c3b157
+- Size: 66597 bytes
+- SHA-256: 6b8871483f25426e58cbb2c942192f1572b8c363541ea79c469a76e2ebc8f4a3
