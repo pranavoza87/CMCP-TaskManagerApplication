@@ -24,10 +24,6 @@ Then('the new task field has {int} code points', async ({ taskPage }, n: number)
   expect(await taskPage.newTaskCodePoints()).toBe(n);
 });
 
-Then('the new task field has a maxLength of {int}', async ({ taskPage }, n: number) => {
-  await expect(taskPage.newTaskInput).toHaveAttribute('maxlength', String(n));
-});
-
 Then('the only backend task has {int} title code points', async ({ api }, n: number) => {
   await expect
     .poll(async () => {
