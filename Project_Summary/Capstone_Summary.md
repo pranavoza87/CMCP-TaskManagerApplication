@@ -520,7 +520,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 
 ![Figure 16 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
 
-**Figure 17:** Code Dev Assistant output summary. The agent reports the fix for EPMCDMETST-72213 pushed as commit `77a9cc4` with no PR opened, the files it changed and its test results (65 backend tests passed, frontend build succeeded, 181 BDD tests passed). Rendered from the report text (excerpt), not a terminal screenshot.
+**Figure 17:** Code Dev Assistant output summary. The agent reports the fix for EPMCDMETST-72213 pushed as commit `77a9cc4` with no PR opened (merged later through PR #12), the files it changed and its test results (65 backend tests passed, frontend build succeeded, 181 BDD tests passed). Rendered from the report text (excerpt), not a terminal screenshot.
 
 ![Figure 17 – Code Dev Assistant output summary](images/figure-17-assistant5-output-summary.png)
 
@@ -581,7 +581,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 
 ![Figure 19 – PR #6 merged](images/figure-17-pr6-merged.png)
 
-**Figure 20:** GitHub PR Review & Merge Assistant output summary. The review agent posted a comment-only review on PR #6, with 9 line-level comments and an overall summary, grouped as High, Medium and Low. As instructed, it did not approve or merge.
+**Figure 20:** GitHub PR Review & Merge Assistant output summary. The review agent posted a comment-only review on PR #6, with 9 line-level comments and an overall summary, grouped as High, Medium and Low. In this first review on 13 Nov, as instructed, it did not approve or merge.
 
 ![Figure 20 – GitHub PR Review & Merge Assistant output summary](images/figure-20-assistant6-output-summary.png)
 
@@ -626,7 +626,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | Run | Date | Result |
 |---|---|---|
 | ENH-01 | 12 Nov 2026 | **123/123 passed.** 8 features, 88 scenarios, 75 step definitions. Merged through [PR #4](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/4) as `9b0357c`. |
-| PR #6 (EPMCDMETST-72136 and 72162) | 13 Nov 2026 | It wrote 4 feature files (54 test cases) under `tests/bdd/features/epmcdmetst-72136/` and `epmcdmetst-72162/`. `results.json` and `junit.xml` show **181 tests: 180 passed, 1 flagged**. |
+| PR #6 (EPMCDMETST-72136 and 72162) | 13 Nov 2026 | It wrote 4 feature files (54 test cases) under `tests/bdd/features/epmcdmetst-72136/` and `epmcdmetst-72162/`. `results.json` and `junit.xml` show **181 tests: 180 passed, 1 failed**. |
 | Full retest after the bug fix | 17 Nov 2026 | On `main` at `d726587` (includes the fix in PR #12): backend **65/65**, BDD **181 passed, 0 failed, 0 skipped** (chromium, 48.7 s). |
 
 **Defect surfaced by the run:** One scenario, "Pasting astral characters is clamped by code points (ENH-16)", showed that the native `maxLength={200}` on the add-task input clamps emoji titles at 100 code points. The assistant logged it as Jira bug [EPMCDMETST-72213](https://jiraeu.epam.com/browse/EPMCDMETST-72213) for follow-up, linked to EPMCDMETST-72136, 72161, 72162, 72163 and 72164. The bug was fixed by Assistant 5 and merged by Assistant 6 in [PR #12](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/12) (fix commit `77a9cc4`, merge commit [`d726587`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/d72658738bc4813b2b65c6593032cdbdc7c33eb9)). The native `maxLength` was removed so the code-point clamp is the only limiter at 200, and the scenario was re-enabled.
@@ -663,7 +663,7 @@ Assistant 7 then commented the retest result on each issue and moved it to **Res
 
 The issues are left in Resolved, for the reviewer to verify and Close.
 
-**Figure 21:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
+**Figure 21:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 failed).
 
 ![Figure 21 – Playwright HTML report](images/figure-18-playwright-report.png)
 
@@ -675,7 +675,7 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 
 ![Figure 23 – Confluence Run Cycle 04 page tree](images/figure-20-confluence-run-cycle-04-page-tree.png)
 
-**Figure 24:** Playwright-BDD Automation Test Generator output summary. The agent wrote 4 feature files for PR #6, and 180 of 181 tests passed. The one failure was a real UI defect, later logged as bug EPMCDMETST-72213 and fixed. The retest after the fix is shown in Figure 25.
+**Figure 24:** Playwright-BDD Automation Test Generator output summary. The agent wrote 4 feature files for PR #6, and 180 of 181 tests passed. One test failed, and it was a real UI defect, later logged as bug EPMCDMETST-72213 and fixed. The retest after the fix is shown in Figure 25.
 
 ![Figure 24 – Playwright-BDD Automation Test Generator output summary](images/figure-24-assistant7-output-summary.png)
 
