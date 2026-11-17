@@ -259,7 +259,10 @@ The three states that write to Jira or Confluence pause for human approval first
 | Location | CMCP - Project Docs (folder `15269889`) |
 | Link | [Open page](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/20021249/Master+Implementation+Plan+-+EPMCDMETST+-+Task+Manager+Application+Enhancements) |
 
-📸 **Figure 8: Master Plan page in Confluence, with the folder breadcrumb.**
+📸 **Figure 7: Master Plan page in Confluence, with the folder breadcrumb.** The page "Master Implementation Plan - EPMCDMETST - Task Manager Application Enhancements" sits in the folder CMCP - Project Docs, next to the four design pages.
+
+![Figure 7 – Master Plan page in Confluence](images/figure-08-master-plan-page.png)
+
 📄 **Evidence:** `2026-11-13_14-41-47.416_master_plan_generator_succeeded.md`
 
 ---
@@ -300,7 +303,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | LLD | LLD - EPMCDMETST | 19005441 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19005441/LLD+-+EPMCDMETST) |
 | Wireframes / UI | Wireframes & UI - EPMCDMETST | 19038209 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19038209/Wireframes+UI+-+EPMCDMETST) |
 
-📸 **Figures 9 to 12:** Architecture, HLD, LLD and Wireframes pages.
+📸 **Figures 8 to 11:** Architecture, HLD, LLD and Wireframes pages.
 📄 **Evidence:** `2026-11-13_14-46-46.448_design_doc_generator_succeeded.md`
 
 ---
@@ -316,7 +319,7 @@ The three states that write to Jira or Confluence pause for human approval first
 
 **Value:** A reviewer can read it first to see the whole run at a glance.
 
-📸 **Figure 13: Finalizer summary.**
+📸 **Figure 12: Finalizer summary.**
 📄 **Evidence:** `2026-11-13_14-47-14.570_result_finalizer_node_succeeded.md`
 
 ---
@@ -414,12 +417,12 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 
 **Jira keys:** Epic EPMCDMETST-70517 with stories 70518 and 70519 (ENH-01); Epic EPMCDMETST-72136 (PR #6 fix).
 
-📸 **Figure 14:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
+📸 **Figure 13:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
 
-![Figure 14 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
-📸 **Figure 15:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
+![Figure 13 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
+📸 **Figure 14:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
 
-![Figure 15 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
+![Figure 14 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
 
 ---
 
@@ -469,13 +472,13 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 
 **Earlier reviews:** PRs #1, #2 and #3 (4 and 12 Nov 2026) were reviewed by this assistant and merged manually as merge commits `ce7c336`, `906c9ec` and `0f41bf9`.
 
-📸 **Figure 16:** Assistant 6's review summary on PR #6.
+📸 **Figure 15:** Assistant 6's review summary on PR #6.
 
-![Figure 16 – PR #6 review](images/figure-16-pr6-review.png)
+![Figure 15 – PR #6 review](images/figure-16-pr6-review.png)
 
-📸 **Figure 17:** PR #6 in the Merged state.
+📸 **Figure 16:** PR #6 in the Merged state.
 
-![Figure 17 – PR #6 merged](images/figure-17-pr6-merged.png)
+![Figure 16 – PR #6 merged](images/figure-17-pr6-merged.png)
 
 ---
 
@@ -554,17 +557,17 @@ Assistant 7 then commented the retest result on each issue and moved it to **Res
 
 The issues are left in Resolved, for the reviewer to verify and Close.
 
-📸 **Figure 18:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
+📸 **Figure 17:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
 
-![Figure 18 – Playwright HTML report](images/figure-18-playwright-report.png)
+![Figure 17 – Playwright HTML report](images/figure-18-playwright-report.png)
 
-📸 **Figure 19:** Assistant 7's retest comment on EPMCDMETST-72162 in Jira (17 Nov 2026), with the Run Cycle 04, Test Execution Summary and Test Plan links.
+📸 **Figure 18:** Assistant 7's retest comment on EPMCDMETST-72162 in Jira (17 Nov 2026), with the Run Cycle 04, Test Execution Summary and Test Plan links.
 
-![Figure 19 – Jira comment on EPMCDMETST-72162](images/figure-19-jira-comment-EPMCDMETST-72162.png)
+![Figure 18 – Jira comment on EPMCDMETST-72162](images/figure-19-jira-comment-EPMCDMETST-72162.png)
 
-📸 **Figure 20:** Confluence page tree under "Automation Testing Artifacts": Run Cycles 01 to 04, with Run Cycle 04 (`2026-11-17 11-48-13`) and its Test Plan and Test Execution Summary pages.
+📸 **Figure 19:** Confluence page tree under "Automation Testing Artifacts": Run Cycles 01 to 04, with Run Cycle 04 (`2026-11-17 11-48-13`) and its Test Plan and Test Execution Summary pages.
 
-![Figure 20 – Confluence Run Cycle 04 page tree](images/figure-20-confluence-run-cycle-04-page-tree.png)
+![Figure 19 – Confluence Run Cycle 04 page tree](images/figure-20-confluence-run-cycle-04-page-tree.png)
 
 ---
 
@@ -617,12 +620,12 @@ The issues are left in Resolved, for the reviewer to verify and Close.
   "files_committed": ["build/BUILD_INFO.md"], "pushed": true, "pr_opened": false }
 ```
 
-📸 **Figure 21:** Build and test output, re-run on 17 Nov 2026 against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
+📸 **Figure 20:** Build and test output, re-run on 17 Nov 2026 against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
 
-![Figure 21 – Build and test output](images/figure-21-build-output.png)
-📸 **Figure 22:** Application running locally on `localhost:5173` (sample tasks added for the capture).
+![Figure 20 – Build and test output](images/figure-21-build-output.png)
+📸 **Figure 21:** Application running locally on `localhost:5173` (sample tasks added for the capture).
 
-![Figure 22 – Running application](images/figure-22-running-app.png)
+![Figure 21 – Running application](images/figure-22-running-app.png)
 
 ---
 
