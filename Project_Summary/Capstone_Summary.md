@@ -8,7 +8,7 @@
 | **Jira project key** | EPMCDMETST |
 | **Platform** | EPAM CodeMie, multi-assistant workflow |
 | **Workflow file** | `TM_Workflow_Final_YAML.yml` |
-| **Execution date** | 13 Nov 2026, about 14:37 to 14:47 (about 10 minutes) |
+| **Execution date** | 13 Nov 2026 |
 | **Final status** | ✅ **SUCCEEDED** (all 4 assistants and the finalizer) |
 | **Author** | Pranav Oza (pranav_oza@epam.com) |
 
@@ -23,7 +23,7 @@
 | 1 | Workflow Overview |
 | 1.1 | What the workflow does |
 | 1.2 | Architecture and flow (Figure 1) |
-| 1.3 | Execution status and timeline |
+| 1.3 | Execution status |
 | 1.4 | Summary of generated outputs |
 | 2 | Assistant 1: Requirements Generator |
 | 3 | Assistant 2: Jira Integration |
@@ -74,17 +74,17 @@ The three states that write to Jira or Confluence pause for human approval first
 
 ![Figure 2 – Workflow canvas in CodeMie](images/figure-02-workflow-export.png)
 
-### 1.3 Execution status and timeline
+### 1.3 Execution status
 
-| Step | Status | Completed at |
-|---|---|---|
-| Requirements_Generator | ✅ Succeeded | 14:37:32 |
-| Jira_Integration | ✅ Succeeded | 14:39:56 |
-| Master_Plan_Generator | ✅ Succeeded | 14:41:47 |
-| Design_Doc_Generator | ✅ Succeeded | 14:46:46 |
-| Result_Finalizer_Node | ✅ Succeeded | 14:47:14 |
+| Step | Status |
+|---|---|
+| Requirements_Generator | ✅ Succeeded |
+| Jira_Integration | ✅ Succeeded |
+| Master_Plan_Generator | ✅ Succeeded |
+| Design_Doc_Generator | ✅ Succeeded |
+| Result_Finalizer_Node | ✅ Succeeded |
 
-📸 **Figure 3: Execution history showing all nodes as Succeeded.** The run of `TM_Workflow_Final` shows SUCCEEDED, with the four assistants and the result finalizer each marked complete (step times: 1 min 20 s, 2 min 7 s, 54 s, 1 min 50 s and 28 s). The screenshot shows local time (IST, UTC+05:30), so its start and finish (20:06 to 20:17) correspond to the UTC times in the table above (about 14:36 to 14:47).
+📸 **Figure 3: Execution history showing all nodes as Succeeded.** The run of `TM_Workflow_Final` shows SUCCEEDED, with the four assistants and the result finalizer each marked complete.
 
 ![Figure 3 – Workflow execution history](images/figure-03-execution-history.png)
 
@@ -450,11 +450,11 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 
 | Step | Detail |
 |---|---|
-| First review (13 Nov 2026, 21:39 to 21:44 IST) | It ran the backend suite (65/65 passed). It posted [pullrequestreview-5894377378](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/6#pullrequestreview-5894377378): a summary and 9 line-level comments. |
+| First review (13 Nov 2026) | It ran the backend suite (65/65 passed). It posted [pullrequestreview-5894377378](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/6#pullrequestreview-5894377378): a summary and 9 line-level comments. |
 | High finding | The `"task-manager-capstone": "file:.."` self-dependency in the backend and frontend `package.json` files. |
 | Fix | Assistant 5 pushed [`d3f5b1b`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/d3f5b1b19f42ccffa3a4e19dede9e8909010af0a). |
 | Re-review (17 Nov 2026) | The high finding was resolved and no must-fix items remained. The GitHub `bdd` check passed and backend tests were 65/65. |
-| Merge | The assistant merged [PR #6](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/6) with merge commit [`16ae960`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/16ae9607baa30cbd14582ccc53f68c0d1c4a3784) at 08:54 UTC. The branch was kept. |
+| Merge | The assistant merged [PR #6](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/6) with merge commit [`16ae960`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/16ae9607baa30cbd14582ccc53f68c0d1c4a3784) on 17 Nov 2026. The branch was kept. |
 
 GitHub does not allow the author to approve their own PR, so the merge was done on the strength of the review. No separate approval is recorded.
 
@@ -508,7 +508,7 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 | Run | Date | Result |
 |---|---|---|
 | ENH-01 | 12 Nov 2026 | **123/123 passed.** 8 features, 88 scenarios, 75 step definitions. Merged through [PR #4](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/4) as `9b0357c`. |
-| PR #6 (EPMCDMETST-72136 and 72162) | 13 Nov 2026, 22:25 to 22:31 IST | It wrote 4 feature files (54 test cases) under `tests/bdd/features/epmcdmetst-72136/` and `epmcdmetst-72162/`. `results.json` and `junit.xml` show **181 tests: 180 passed, 1 flagged**. |
+| PR #6 (EPMCDMETST-72136 and 72162) | 13 Nov 2026 | It wrote 4 feature files (54 test cases) under `tests/bdd/features/epmcdmetst-72136/` and `epmcdmetst-72162/`. `results.json` and `junit.xml` show **181 tests: 180 passed, 1 flagged**. |
 | Full retest after the bug fix | 17 Nov 2026 | On `main` at `d726587` (includes the fix in PR #12): backend **65/65**, BDD **181 passed, 0 failed, 0 skipped** (chromium, 48.7 s). |
 
 **Defect surfaced by the run:** One scenario, "Pasting astral characters is clamped by code points (ENH-16)", showed that the native `maxLength={200}` on the add-task input clamps emoji titles at 100 code points. The assistant logged it as Jira bug [EPMCDMETST-72213](https://jiraeu.epam.com/browse/EPMCDMETST-72213) for follow-up, linked to EPMCDMETST-72136, 72161, 72162, 72163 and 72164. The bug was fixed by Assistant 5 and merged by Assistant 6 in [PR #12](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/12) (fix commit `77a9cc4`, merge commit [`d726587`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/d72658738bc4813b2b65c6593032cdbdc7c33eb9)). The native `maxLength` was removed so the code-point clamp is the only limiter at 200, and the scenario was re-enabled.
@@ -608,7 +608,7 @@ The issues are left in Resolved, for the reviewer to verify and Close.
   "files_committed": ["build/BUILD_INFO.md"], "pushed": true, "pr_opened": false }
 ```
 
-📸 **Figure 21:** Build and test output, re-run on 17 Nov 2026 09:46 UTC against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
+📸 **Figure 21:** Build and test output, re-run on 17 Nov 2026 against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
 
 ![Figure 21 – Build and test output](images/figure-21-build-output.png)
 📸 **Figure 22:** Application running locally on `localhost:5173` (sample tasks added for the capture).
@@ -632,13 +632,13 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 
 | When | Assistant | Action | Reference |
 |---|---|---|---|
-| 13 Nov 2026, 21:39 IST | 6 | First review: 9 line-level comments | [Review](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/6#pullrequestreview-5894377378) |
-| 13 Nov 2026, 22:25 IST | 7 | 54 new test cases; 181 tests run; Jira and Confluence updated | Run Cycle 03, EPMCDMETST-72213 |
+| 13 Nov 2026 | 6 | First review: 9 line-level comments | [Review](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/6#pullrequestreview-5894377378) |
+| 13 Nov 2026 | 7 | 54 new test cases; 181 tests run; Jira and Confluence updated | Run Cycle 03, EPMCDMETST-72213 |
 | 17 Nov 2026 | 5 | Fix for the review's high finding | `d3f5b1b` |
-| 17 Nov 2026, 08:54 UTC | 6 | Re-review and merge of PR #6 | `16ae960` |
+| 17 Nov 2026 | 6 | Re-review and merge of PR #6 | `16ae960` |
 | 17 Nov 2026 | 8 | Build, tests, local launch, push to a new branch | `1ed8a6b` on `build/artifacts-72136` |
 | 17 Nov 2026 | 5 | Fix for bug EPMCDMETST-72213 (native `maxLength` removed, scenario re-enabled) | `77a9cc4` |
-| 17 Nov 2026, 11:45 UTC | 6 | Review and merge of PR #12 (`bdd` check: 181 passed) | [PR #12](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/12), `d726587` |
+| 17 Nov 2026 | 6 | Review and merge of PR #12 (`bdd` check: 181 passed) | [PR #12](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/12), `d726587` |
 | 17 Nov 2026 | 7 | Full retest on `main`: backend 65/65, BDD 181/181; Run Cycle 04 published | Confluence page 21168130 |
 | 17 Nov 2026 | 7 (Jira tool) | Retest comments on 72163, 72164, 72165, 72162 and 72213; all moved to Resolved | Comment IDs 16100332, 16100400, 16100405, 16100338, 16100340 |
 
