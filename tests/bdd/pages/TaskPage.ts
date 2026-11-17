@@ -65,6 +65,32 @@ export class TaskPage {
     }).toPass({ timeout: 8_000 });
   }
 
+  /** Replaces the content of the "New task title" field in one step (like a paste). */
+  async fillNewTask(text: string): Promise<void> {
+    await this.newTaskInput.fill(text);
+  }
+
+  /** Types into the "New task title" field one character at a time, the way a user does. */
+  async typeNewTask(text: string): Promise<void> {
+    await this.newTaskInput.click();
+    await this.newTaskInput.pressSequentially(text);
+  }
+
+  async newTaskCodePoints(): Promise<number> {
+    return [...(await this.newTaskInput.inputValue())].length;
+  }
+
+  /** Makes every DELETE /api/tasks/:id fail with HTTP 500 (the task is NOT removed server-side). */
+  async failDeletesWithServerError(): Promise<void> {
+    await this.page.route('**/api/tasks/*', async (route) => {
+      if (route.request().method() === 'DELETE') {
+        await route.fulfill({ status: 500, contentType: 'application/json', body: '{}' });
+      } else {
+        await route.continue();
+      }
+    });
+  }
+
   async inputCodePoints(): Promise<number> {
     return [...(await this.editInput.inputValue())].length;
   }
