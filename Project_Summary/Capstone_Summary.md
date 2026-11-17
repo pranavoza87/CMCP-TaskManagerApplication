@@ -44,7 +44,7 @@
 This workflow turns one plain-language request into a traceable delivery package. The request was *"Generate new enhancements for task manager application."* Four chained CodeMie assistants run in sequence:
 
 1. **Requirements Generator** analyzes the application and writes structured requirements.
-2. **Jira Integration** creates the backlog (Epic → Stories → Sub-tasks).
+2. **Jira Integration** creates the backlog: an Epic, Stories linked to the Epic, and Sub-tasks under each Story.
 3. **Master Plan Generator** publishes a Master Implementation Plan to Confluence.
 4. **Design Doc Generator** returns the Architecture, HLD, LLD and Wireframe design pages in Confluence. These pages already existed from an earlier run and serve as the design baseline (see section 5).
 
@@ -88,7 +88,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | # | Output | Produced by | Description |
 |---|---|---|---|
 | 1 | 5 requirements (ENH-13 to ENH-17) | Assistant 1 | Structured JSON with type, title, summary, Given-When-Then acceptance criteria and priority. |
-| 2 | 1 Jira Epic (EPMCDMETST-72136) | Assistant 2 | The parent container for all enhancements. |
+| 2 | 1 Jira Epic (EPMCDMETST-72136) | Assistant 2 | The Epic that groups all enhancements. The Stories are linked to it. |
 | 3 | 5 Jira Stories | Assistant 2 | One story per requirement. |
 | 4 | 15 Jira Sub-tasks | Assistant 2 | Implementation, Testing and Code Review for each story. |
 | 5 | Master Implementation Plan (Page ID 20021249) | Assistant 3 | A program-level plan or TDD in Confluence. |
@@ -173,7 +173,7 @@ The three states that write to Jira or Confluence pause for human approval first
 **What it does:**
 
 1. Creates the Epic. It sets the Epic Name field `customfield_14501`.
-2. Creates one Story per requirement, using standard fields only.
+2. Creates one Story per requirement, using standard fields only. Each Story is linked to the Epic with a "relates to" link.
 3. Creates three Sub-tasks per Story: Implementation, Testing and Code Review.
 4. Captures every issue key and browse URL.
 
@@ -181,7 +181,7 @@ The three states that write to Jira or Confluence pause for human approval first
 
 | Instruction | Effect |
 |---|---|
-| Strict order: Epic → Stories → Sub-tasks | Gives the correct hierarchy. |
+| Strict order: Epic, then Stories linked to the Epic, then Sub-tasks under each Story | Gives a traceable hierarchy. |
 | Epic Name set via `customfield_14501` | Meets the Jira validation rule. |
 | Standard fields only for Stories | Avoids custom-field errors. |
 | Capture real keys and working URLs | Gives an audit trail. |
