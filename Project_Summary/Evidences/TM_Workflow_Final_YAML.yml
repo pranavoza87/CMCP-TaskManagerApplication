@@ -1,0 +1,468 @@
+assistants:
+  - id: assistant_1
+    assistant_id: ae3c9b28-a04f-47bd-bce2-6670e0d6f0d0
+  - id: assistant_2
+    assistant_id: b5e9a8cf-63c3-4b47-9b9f-074acdd24df6
+  - id: assistant_3
+    assistant_id: 7ab86f41-b2b6-422f-a838-91c96b597dca
+  - id: assistant_4
+    assistant_id: 87273031-8387-4648-8d9d-c735d89f4624
+
+states:
+  - id: Requirements_Generator
+    assistant_id: assistant_1
+    next:
+      state_id: Jira_Integration
+    task: |-
+      "You are an expert Requirement and Enhancement Analyst assistant on the EPAM CodeMie Platform. Your primary responsibility is to analyze provided source documentation, codebases, or prompt inputs to extract, formulate, and refine rigorous technical requirements and enhancements. You must treat the provided data-source as the absolute golden truth—never hallucinate or assume facts outside the provided source.
+
+      Your output must strictly adhere to the defined JSON Output Schema without any markdown wrapping or conversational filler outside the JSON block if configured for direct downstream consumption. Every extracted requirement must be fully detailed with an ID, Type, Title, Summary, Acceptance Criteria (Given-When-Then format), and Priority."
+    output_schema: |-
+      {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "title": "RequirementAnalysisOutput",
+          "type": "object",
+          "properties": {
+              "project_key": {
+                  "type": "string",
+                  "const": "EPMCDMETST",
+                  "description": "The target Jira project key where items will be created."
+              },
+              "generated_timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Timestamp when the analysis was completed."
+              },
+              "requirements": {
+                  "type": "array",
+                  "items": {
+                      "type": "object",
+                      "properties": {
+                          "Requirement_ID": {
+                              "type": "string",
+                              "description": "Unique identifier for the requirement (e.g., REQ-01)."
+                          },
+                          "Requirement_Type": {
+                              "type": "string",
+                              "enum": [
+                                  "Security/Auth",
+                                  "Validation",
+                                  "Functional",
+                                  "NFR",
+                                  "Technical Debt"
+                              ],
+                              "description": "Classification category of the requirement."
+                          },
+                          "Requirement_Title": {
+                              "type": "string",
+                              "description": "Concise, descriptive title of the requirement."
+                          },
+                          "Requirement_Summary": {
+                              "type": "string",
+                              "description": "Detailed description and business/technical justification."
+                          },
+                          "Requirement_Acceptance_Criteria": {
+                              "type": "string",
+                              "description": "Behavioral criteria formatted in Gherkin (Given-When-Then syntax)."
+                          },
+                          "Requirement_Priority": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "description": "Numerical priority order."
+                          }
+                      },
+                      "required": [
+                          "Requirement_ID",
+                          "Requirement_Type",
+                          "Requirement_Title",
+                          "Requirement_Summary",
+                          "Requirement_Acceptance_Criteria",
+                          "Requirement_Priority"
+                      ],
+                      "additionalProperties": false
+                  }
+              }
+          },
+          "required": [
+              "project_key",
+              "generated_timestamp",
+              "requirements"
+          ],
+          "additionalProperties": false
+      }
+    interrupt_before: false
+    finish_iteration: false
+    resolve_dynamic_values_in_prompt: false
+    result_as_human_message: false
+  - id: Jira_Integration
+    assistant_id: assistant_2
+    next:
+      state_id: Master_Plan_Generator
+    task: |-
+      You are an expert Agile Product Owner and Jira Integration Specialist assistant on the EPAM CodeMie Platform. Your primary responsibility is to ingest the structured JSON requirement payload produced by the Requirement and Enhancement Analyst assistant and execute Jira tool calls to create hierarchical Jira entities under project key `EPMCDMETST`. 
+
+      You must strictly adhere to the following execution sequence:
+      1. Create a parent EPIC (populating summary, description, and Epic Name custom field `customfield_14501`).
+      2. Iterate through every requirement in the input payload to create a corresponding User Story (using standard system fields only to avoid validation errors).
+      3. Create standard engineering Sub-tasks (Implementation, Testing, Code Review) under each User Story.
+      4. Capture all real Jira Issue Keys and working issue browse URLs.
+      5. Return the final output strictly as a unified JSON payload matching the required output schema without extraneous conversational markdown.
+    output_schema: |-
+      {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "title": "JiraEpicStoryGenerationOutput",
+          "type": "object",
+          "properties": {
+              "project_key": {
+                  "type": "string",
+                  "const": "EPMCDMETST"
+              },
+              "generation_status": {
+                  "type": "string",
+                  "const": "SUCCESS"
+              },
+              "epic": {
+                  "type": "object",
+                  "properties": {
+                      "epic_id": {
+                          "type": "string"
+                      },
+                      "epic_name": {
+                          "type": "string"
+                      },
+                      "epic_summary": {
+                          "type": "string"
+                      },
+                      "epic_issue_key": {
+                          "type": "string"
+                      },
+                      "epic_issue_link": {
+                          "type": "string",
+                          "format": "uri"
+                      }
+                  },
+                  "required": [
+                      "epic_id",
+                      "epic_name",
+                      "epic_summary",
+                      "epic_issue_key",
+                      "epic_issue_link"
+                  ],
+                  "additionalProperties": false
+              },
+              "user_stories": {
+                  "type": "array",
+                  "items": {
+                      "type": "object",
+                      "properties": {
+                          "source_requirement_id": {
+                              "type": "string"
+                          },
+                          "issue_type": {
+                              "type": "string",
+                              "const": "Story"
+                          },
+                          "story_id": {
+                              "type": "string"
+                          },
+                          "story_issue_key": {
+                              "type": "string"
+                          },
+                          "story_issue_link": {
+                              "type": "string",
+                              "format": "uri"
+                          },
+                          "summary": {
+                              "type": "string"
+                          },
+                          "description": {
+                              "type": "string"
+                          },
+                          "acceptance_criteria": {
+                              "type": "string"
+                          },
+                          "priority": {
+                              "type": "string"
+                          },
+                          "subtasks": {
+                              "type": "array",
+                              "items": {
+                                  "type": "object",
+                                  "properties": {
+                                      "subtask_id": {
+                                          "type": "string"
+                                      },
+                                      "subtask_issue_key": {
+                                          "type": "string"
+                                      },
+                                      "subtask_name": {
+                                          "type": "string"
+                                      },
+                                      "subtask_link": {
+                                          "type": "string",
+                                          "format": "uri"
+                                      },
+                                      "action_description": {
+                                          "type": "string"
+                                      }
+                                  },
+                                  "required": [
+                                      "subtask_id",
+                                      "subtask_issue_key",
+                                      "subtask_name",
+                                      "subtask_link",
+                                      "action_description"
+                                  ],
+                                  "additionalProperties": false
+                              }
+                          }
+                      },
+                      "required": [
+                          "source_requirement_id",
+                          "issue_type",
+                          "story_id",
+                          "story_issue_key",
+                          "story_issue_link",
+                          "summary",
+                          "description",
+                          "acceptance_criteria",
+                          "priority",
+                          "subtasks"
+                      ],
+                      "additionalProperties": false
+                  }
+              }
+          },
+          "required": [
+              "project_key",
+              "generation_status",
+              "epic",
+              "user_stories"
+          ],
+          "additionalProperties": false
+      }
+    interrupt_before: true
+    finish_iteration: false
+    resolve_dynamic_values_in_prompt: false
+    result_as_human_message: false
+  - id: Master_Plan_Generator
+    assistant_id: assistant_3
+    next:
+      state_id: Design_Doc_Generator
+    task: |-
+      You are an expert Technical Program Manager and Enterprise Solutions Architect assistant on the EPAM CodeMie Platform. Your primary responsibility is to ingest the hierarchical Jira backlog structure (Epic, User Stories, and Sub-tasks under project `EPMCDMETST`) and generate a holistic, industry-standard, production-grade **Master Implementation & Development Plan / Technical Design Document (TDD)**. 
+
+      You must utilize your connected Confluence integration tool to publish this plan directly as a new Confluence page with an appropriate professional title (e.g., `Master Implementation Plan - EPMCDMETST - [Epic Title]`). 
+
+      **STRICT CONFLUENCE PLACEMENT CONSTRAINT:**
+      You must create the page exclusively in the following designated location:
+      - Space key: `~712020c564eda18e274aaca9dffc1762d1c0a9`
+      - Folder ID: `15269889`
+      - Folder name: `CMCP - Project Docs`
+
+      Before creating the page, verify that the space key and folder ID match. Never create the page anywhere else. Finally, return a clean JSON response containing the Confluence space key, folder ID, page ID, page title, and working Confluence page URL matching the required output schema.
+    output_schema: |-
+      {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "title": "ImplementationPlanGenerationOutput",
+          "type": "object",
+          "properties": {
+              "project_key": {
+                  "type": "string",
+                  "const": "EPMCDMETST"
+              },
+              "generation_status": {
+                  "type": "string",
+                  "const": "SUCCESS"
+              },
+              "document_type": {
+                  "type": "string",
+                  "const": "Master Implementation & Development Plan"
+              },
+              "confluence_space_key": {
+                  "type": "string",
+                  "const": "~712020c564eda18e274aaca9dffc1762d1c0a9"
+              },
+              "confluence_folder_id": {
+                  "type": "string",
+                  "const": "15269889"
+              },
+              "confluence_page_title": {
+                  "type": "string"
+              },
+              "confluence_page_id": {
+                  "type": "string"
+              },
+              "Confluence_URL": {
+                  "type": "string",
+                  "format": "uri"
+              }
+          },
+          "required": [
+              "project_key",
+              "generation_status",
+              "document_type",
+              "confluence_space_key",
+              "confluence_folder_id",
+              "confluence_page_title",
+              "confluence_page_id",
+              "Confluence_URL"
+          ],
+          "additionalProperties": false
+      }
+    interrupt_before: true
+    finish_iteration: false
+    resolve_dynamic_values_in_prompt: false
+    result_as_human_message: false
+  - id: Design_Doc_Generator
+    assistant_id: assistant_4
+    next:
+      state_id: end
+    task: |-
+      You are an expert Enterprise Solutions Architect and UI/UX Designer assistant on the EPAM CodeMie Platform. Your primary responsibility is to ingest the upstream Jira backlog and the published Confluence Master Implementation Plan / TDD from Assistant 3, and generate comprehensive, production-grade engineering design specifications.
+
+      You must utilize your connected Confluence integration tool to publish the design documentation directly to Confluence. 
+
+      **STRICT CONFLUENCE PLACEMENT CONSTRAINT:**
+      You must create all design document pages exclusively in the following designated location:
+      - Space key: `~712020c564eda18e274aaca9dffc1762d1c0a9`
+      - Folder ID: `15269889`
+      - Folder name: `CMCP - Project Docs`
+
+      Before creating any pages, verify that the space key and folder ID match. Never create pages anywhere else. 
+
+      You must generate and publish:
+      1. **Architecture Diagram & Overview**
+      2. **High-Level Design (HLD)**
+      3. **Low-Level Design (LLD)**
+      4. **Wireframes / UI Specifications** (where applicable)
+
+      Finally, return a clean JSON response containing working Confluence URLs and metadata for all generated design specifications matching the required output schema.
+    output_schema: |-
+      {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "title": "DesignSpecificationsGenerationOutput",
+          "type": "object",
+          "properties": {
+              "project_key": {
+                  "type": "string"
+              },
+              "generation_status": {
+                  "type": "string"
+              },
+              "document_group": {
+                  "type": "string"
+              },
+              "confluence_space_key": {
+                  "type": "string"
+              },
+              "confluence_folder_id": {
+                  "type": "string"
+              },
+              "design_documents": {
+                  "type": "array",
+                  "items": {
+                      "type": "object",
+                      "properties": {
+                          "doc_type": {
+                              "type": "string"
+                          },
+                          "confluence_page_title": {
+                              "type": "string"
+                          },
+                          "confluence_page_id": {
+                              "type": "string"
+                          },
+                          "Confluence_URL": {
+                              "type": "string",
+                              "format": "uri"
+                          }
+                      },
+                      "required": [
+                          "doc_type",
+                          "confluence_page_title",
+                          "confluence_page_id",
+                          "Confluence_URL"
+                      ],
+                      "additionalProperties": false
+                  }
+              }
+          },
+          "required": [
+              "project_key",
+              "generation_status",
+              "document_group",
+              "confluence_space_key",
+              "confluence_folder_id",
+              "design_documents"
+          ],
+          "additionalProperties": false
+      }
+    interrupt_before: true
+    finish_iteration: false
+    resolve_dynamic_values_in_prompt: false
+    result_as_human_message: false
+
+meta_states:
+  - type: assistant
+    position:
+      x: 356
+      y: 20
+    is_connected: true
+    selected: false
+    id: Requirements_Generator
+    measured:
+      width: 256
+      height: 66
+  - type: assistant
+    position:
+      x: 712
+      y: 20
+    is_connected: true
+    selected: false
+    id: Jira_Integration
+    measured:
+      width: 256
+      height: 66
+  - type: assistant
+    position:
+      x: 1068
+      y: 20
+    is_connected: true
+    selected: false
+    id: Master_Plan_Generator
+    measured:
+      width: 256
+      height: 66
+  - type: assistant
+    position:
+      x: 1424
+      y: 20
+    is_connected: true
+    selected: false
+    id: Design_Doc_Generator
+    measured:
+      width: 256
+      height: 66
+  - id: start
+    type: start
+    is_connected: false
+    position:
+      x: 0
+      y: 20
+    measured:
+      width: 256
+      height: 66
+    data: {}
+    selected: false
+  - id: end
+    type: end
+    is_connected: true
+    position:
+      x: 1780
+      y: 20
+    measured:
+      width: 256
+      height: 66
+    data: {}
+    selected: false

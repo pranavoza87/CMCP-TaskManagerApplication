@@ -336,7 +336,20 @@ The three states that write to Jira or Confluence pause for human approval first
 
 **Value:** A reviewer can read it first to see the whole run at a glance.
 
-📸 **Figure 12: Finalizer summary.**
+📸 **Figure 12: Finalizer summary.** The Execution State Output of `result_finalizer_node`, shown in six parts (12a to 12f) because the summary is long. The finalizer summarises the assistants' JSON outputs from the conversation only. The Jira issues it lists are shown in Figures 5 and 6, and the Master Plan page in Figure 7.
+
+![Figure 12a – Finalizer summary, part 1](images/figure-12-finalizer-summary-img01.png)
+
+![Figure 12b – Finalizer summary, part 2](images/figure-12-finalizer-summary-img02.png)
+
+![Figure 12c – Finalizer summary, part 3](images/figure-12-finalizer-summary-img03.png)
+
+![Figure 12d – Finalizer summary, part 4](images/figure-12-finalizer-summary-img04.png)
+
+![Figure 12e – Finalizer summary, part 5](images/figure-12-finalizer-summary-img05.png)
+
+![Figure 12f – Finalizer summary, part 6](images/figure-12-finalizer-summary-img06.png)
+
 📄 **Evidence:** `2026-11-13_14-47-14.570_result_finalizer_node_succeeded.md`
 
 ---
