@@ -217,7 +217,6 @@ The three states that write to Jira or Confluence pause for human approval first
 
 ![Figure 6 – Jira story EPMCDMETST-72137 with sub-tasks](images/figure-06-jira-story-subtasks.png)
 
-📸 **Figure 7: Workflow paused at the approval step.**
 📄 **Evidence:** `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
 
 ---
