@@ -5,7 +5,9 @@
 No node_modules, tests, .env files or databases are included. See `MANIFEST.md` for file list and SHA-256.
 
 Deploy (Node 22):
-1. `unzip task-manager-deploy-d440e32.zip -d task-manager && cd task-manager/backend`
+1. Extract the zip (a genuine zip archive) and enter the backend folder:
+   - Linux/macOS/Git Bash: `unzip task-manager-deploy-d440e32.zip -d task-manager && cd task-manager/backend`
+   - Windows PowerShell: `Expand-Archive task-manager-deploy-d440e32.zip -DestinationPath task-manager; cd task-manager/backend`
 2. `npm ci --omit=dev`
 3. Set environment variables (all optional):
    - `PORT` (default 4000)

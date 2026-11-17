@@ -20,5 +20,5 @@
 ## Archive
 
 - File: task-manager-deploy-d440e32.zip
-- Size: 225280 bytes
-- SHA-256: 7798608168d758b43d5f89ee5ceb004e9434abf71ebda8904c1e7a815e5b3a04
+- Size: 67225 bytes
+- SHA-256: 4dd07de80b767732891e33adfc50f993a6765e7b6227c23dca5578b579c3b157
