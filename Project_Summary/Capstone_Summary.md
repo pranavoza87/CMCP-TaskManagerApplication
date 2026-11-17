@@ -691,23 +691,13 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 | Package checks | Valid zip. The backend files are byte-identical to the committed files at `d440e32`. The frontend files are identical to a fresh build. The checksum matches `deploy/MANIFEST.md`. |
 | Launch from the package | Unpacked with `Expand-Archive` into a clean folder, then `npm ci --omit=dev` (0 vulnerabilities). `/api/health` 200, frontend page 200, proxied `/api/tasks` 200. Three sample tasks were created (201). All processes were stopped and the ports released. |
 | Git | Branch [`build/deployment-package-72136`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/tree/build/deployment-package-72136/deploy), folder `deploy/` with the zip, `MANIFEST.md` and `README.md`. Latest commit [`4c0827e`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/4c0827e37285f98aabd2878adb4fb8caebb24ad6). Pushed with no force. No PR was opened. |
-| Corrections | Independent verification led to two follow-up commits on the first package: `342cfdf` replaced an archive that was a tar file with a `.zip` name by a real zip, and `4c0827e` repackaged the backend files with the exact committed bytes (LF line endings). |
-
-```json
-{ "deployment_status": "success", "branch": "build/deployment-package-72136",
-  "commit_sha": "4c0827e37285f98aabd2878adb4fb8caebb24ad6",
-  "package": "deploy/task-manager-deploy-d440e32.zip",
-  "package_sha256": "6b8871483f25426e58cbb2c942192f1572b8c363541ea79c469a76e2ebc8f4a3",
-  "launched_from_package": true, "pushed": true, "pr_opened": false }
-```
-
 **Figure 21:** Console log of Assistant 8's evidence run on 17 Nov 2026, shown in two parts: (a) dependency install, backend tests, production build and the check of the committed package; (b) launch from the package, sample tasks, cleanup and the result summary (all seven steps PASS). The images are rendered from the agent's log file; the text is unchanged.
 
 ![Figure 21a – Build and package check](images/figure-21a-build-and-package-check.png)
 
 ![Figure 21b – Launch from the package](images/figure-21b-launch-from-package.png)
 
-*Note on the install step:* `npm ci` also prints security advisories for development-only tooling (the test tooling in the root project and the Vite build tooling in the frontend). A production-only audit (`npm audit --omit=dev`) reports 0 vulnerabilities in the root, backend and frontend projects, and none of that tooling is part of the deployment package.
+*Note:* The install step lists advisories for development-only tooling. A production-only audit reports 0 vulnerabilities, and none of that tooling is in the deployment package.
 
 **Figure 22:** The application launched from the deployment package, in a screenshot taken by Assistant 8 (three sample tasks were added through the API for the capture).
 
