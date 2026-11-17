@@ -49,7 +49,7 @@ This workflow turns one plain-language request into a traceable delivery package
 1. **Requirements Generator** analyzes the application and writes structured requirements.
 2. **Jira Integration** creates the backlog (Epic → Stories → Sub-tasks).
 3. **Master Plan Generator** publishes a Master Implementation Plan to Confluence.
-4. **Design Doc Generator** publishes the Architecture, HLD, LLD and Wireframe pages to Confluence.
+4. **Design Doc Generator** returns the Architecture, HLD, LLD and Wireframe design pages in Confluence. These pages already existed from an earlier run and serve as the design baseline (see section 5).
 
 Each assistant reads the previous assistant's JSON output. It returns JSON that matches its own **JSON Schema (draft-07)**.
 
@@ -97,7 +97,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | 3 | 5 Jira Stories | Assistant 2 | One story per requirement. |
 | 4 | 15 Jira Sub-tasks | Assistant 2 | Implementation, Testing and Code Review for each story. |
 | 5 | Master Implementation Plan (Page ID 20021249) | Assistant 3 | A program-level plan or TDD in Confluence. |
-| 6 | 4 design pages | Assistant 4 | Architecture Spec, HLD, LLD and Wireframes/UI in Confluence. |
+| 6 | 4 design pages (existing baseline) | Assistant 4 | Architecture Spec, HLD, LLD and Wireframes/UI in Confluence, referenced with their page IDs and links. |
 | 7 | Consolidated conversation summary | Result Finalizer | One record of the run with all IDs and links. |
 
 **Totals:** 21 Jira issues and 5 Confluence pages.
@@ -209,9 +209,14 @@ The three states that write to Jira or Confluence pause for human approval first
 | ENH-16 | [EPMCDMETST-72149](https://jiraeu.epam.com/browse/EPMCDMETST-72149) | [72150](https://jiraeu.epam.com/browse/EPMCDMETST-72150) / [72151](https://jiraeu.epam.com/browse/EPMCDMETST-72151) / [72152](https://jiraeu.epam.com/browse/EPMCDMETST-72152) |
 | ENH-17 | [EPMCDMETST-72153](https://jiraeu.epam.com/browse/EPMCDMETST-72153) | [72154](https://jiraeu.epam.com/browse/EPMCDMETST-72154) / [72155](https://jiraeu.epam.com/browse/EPMCDMETST-72155) / [72156](https://jiraeu.epam.com/browse/EPMCDMETST-72156) |
 
-📸 **Figure 5: Jira Epic EPMCDMETST-72136 with child issues.**
-📸 **Figure 6: A Story (for example 72137) with its 3 sub-tasks.**
-📸 **Figure 7: Workflow paused at the approval step.**
+📸 **Figure 5: Jira Epic EPMCDMETST-72136 with its linked stories.** The Epic "Task Manager Application Enhancements" lists the five stories (EPMCDMETST-72137, 72141, 72145, 72149 and 72153) for ENH-13 to ENH-17. The linked bug EPMCDMETST-72213 appears as Resolved.
+
+![Figure 5 – Jira Epic EPMCDMETST-72136](images/figure-05-jira-epic.png)
+
+📸 **Figure 6: A Story (EPMCDMETST-72137, ENH-13) with its 3 sub-tasks.** The Sub-Tasks section lists Implementation (72138), Testing (72139) and Code Review (72140). The story is linked to Epic EPMCDMETST-72136.
+
+![Figure 6 – Jira story EPMCDMETST-72137 with sub-tasks](images/figure-06-jira-story-subtasks.png)
+
 📄 **Evidence:** `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
 
 ---
@@ -254,7 +259,10 @@ The three states that write to Jira or Confluence pause for human approval first
 | Location | CMCP - Project Docs (folder `15269889`) |
 | Link | [Open page](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/20021249/Master+Implementation+Plan+-+EPMCDMETST+-+Task+Manager+Application+Enhancements) |
 
-📸 **Figure 8: Master Plan page in Confluence, with the folder breadcrumb.**
+📸 **Figure 7: Master Plan page in Confluence, with the folder breadcrumb.** The page "Master Implementation Plan - EPMCDMETST - Task Manager Application Enhancements" sits in the folder CMCP - Project Docs, next to the four design pages.
+
+![Figure 7 – Master Plan page in Confluence](images/figure-08-master-plan-page.png)
+
 📄 **Evidence:** `2026-11-13_14-41-47.416_master_plan_generator_succeeded.md`
 
 ---
@@ -268,11 +276,13 @@ The three states that write to Jira or Confluence pause for human approval first
 | **Role** | Enterprise Solutions Architect and UI/UX Designer |
 | **Human approval** | ✅ before execution |
 
-**Description:** This assistant reads the Jira backlog and the published Master Plan. It produces four design specifications and publishes them to Confluence.
+**Description:** This assistant reads the Jira backlog and the published Master Plan. It returns the four design specification pages (Architecture, High-Level Design, Low-Level Design and Wireframes/UI) in the approved Confluence folder, with their page IDs and links.
 
 **Purpose:** It gives developers a technical blueprint before implementation. The blueprint covers system structure, component design and UI.
 
-**What it does:** It creates Architecture Diagram & Overview, High-Level Design, Low-Level Design and Wireframes/UI pages.
+**What it does:** It lists Architecture Diagram & Overview, High-Level Design, Low-Level Design and Wireframes/UI pages in the approved folder.
+
+**Design baseline note:** Confluence page titles must be unique within a space. The four design pages in this run (titles ending in `- EPMCDMETST`) already existed from an earlier run on 12 Nov 2026, created for story EPMCDMETST-71759 (Create Task via `POST /api/tasks`). The assistant's output returned those pages, and they were not regenerated or edited for Epic EPMCDMETST-72136. The Master Plan page (20021249, section 4) is the page created in this run for Epic 72136.
 
 **Key instructions:**
 
@@ -281,7 +291,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | Inputs are the Jira backlog and the Master Plan | Keeps designs consistent with the plan. |
 | Same strict space and folder constraint | Pages land in the approved location. |
 | Verify before creating pages | A guardrail check. |
-| Four mandatory design artifacts | The package is complete. |
+| Four mandatory design artifacts | The package is complete (returned from the existing baseline pages). |
 | JSON with URLs for each page | Traceability. |
 
 **Output schema compliance (`DesignSpecificationsGenerationOutput`):** ✅ All required top-level fields are present. `design_documents[]` has 4 entries. Each has `doc_type`, `confluence_page_title`, `confluence_page_id` and `Confluence_URL`.
@@ -295,7 +305,22 @@ The three states that write to Jira or Confluence pause for human approval first
 | LLD | LLD - EPMCDMETST | 19005441 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19005441/LLD+-+EPMCDMETST) |
 | Wireframes / UI | Wireframes & UI - EPMCDMETST | 19038209 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19038209/Wireframes+UI+-+EPMCDMETST) |
 
-📸 **Figures 9 to 12:** Architecture, HLD, LLD and Wireframes pages.
+📸 **Figure 8: Architecture Spec page.** One of the four existing design pages (created 12 Nov 2026, story EPMCDMETST-71759) returned by Assistant 4.
+
+![Figure 8 – Architecture Spec page](images/figure-08-architecture-spec.png)
+
+📸 **Figure 9: High-Level Design (HLD) page.**
+
+![Figure 9 – HLD page](images/figure-09-hld.png)
+
+📸 **Figure 10: Low-Level Design (LLD) page.**
+
+![Figure 10 – LLD page](images/figure-10-lld.png)
+
+📸 **Figure 11: Wireframes & UI page.**
+
+![Figure 11 – Wireframes & UI page](images/figure-11-wireframes-ui.png)
+
 📄 **Evidence:** `2026-11-13_14-46-46.448_design_doc_generator_succeeded.md`
 
 ---
@@ -311,7 +336,20 @@ The three states that write to Jira or Confluence pause for human approval first
 
 **Value:** A reviewer can read it first to see the whole run at a glance.
 
-📸 **Figure 13: Finalizer summary.**
+📸 **Figure 12: Finalizer summary.** The Execution State Output of `result_finalizer_node`, shown in six parts (12a to 12f) because the summary is long. The finalizer summarises the assistants' JSON outputs from the conversation only. The Jira issues it lists are shown in Figures 5 and 6, and the Master Plan page in Figure 7.
+
+![Figure 12a – Finalizer summary, part 1](images/figure-12-finalizer-summary-img01.png)
+
+![Figure 12b – Finalizer summary, part 2](images/figure-12-finalizer-summary-img02.png)
+
+![Figure 12c – Finalizer summary, part 3](images/figure-12-finalizer-summary-img03.png)
+
+![Figure 12d – Finalizer summary, part 4](images/figure-12-finalizer-summary-img04.png)
+
+![Figure 12e – Finalizer summary, part 5](images/figure-12-finalizer-summary-img05.png)
+
+![Figure 12f – Finalizer summary, part 6](images/figure-12-finalizer-summary-img06.png)
+
 📄 **Evidence:** `2026-11-13_14-47-14.570_result_finalizer_node_succeeded.md`
 
 ---
@@ -326,7 +364,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | ENH-16: Title max length | Validation | EPMCDMETST-72149 | 72150 to 72152 |
 | ENH-17: Configurable CORS | Security/Auth | EPMCDMETST-72153 | 72154 to 72156 |
 
-All five stories feed the Master Plan (Confluence 20021249) and the four design pages (18972673, 18874407, 19005441, 19038209).
+All five stories feed the Master Plan (Confluence 20021249). The four design pages (18972673, 18874407, 19005441, 19038209) are referenced as the design baseline; they were created earlier for story EPMCDMETST-71759.
 
 ---
 
@@ -344,7 +382,7 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 | 8 | End-to-end execution succeeded | ✅ | Section 1.3 |
 | 9 | Traceable artifacts | ✅ 21 Jira issues and 5 Confluence pages | Section 7 |
 
-**Evidence files:**
+**Evidence files** (the step output files are in `Project_Summary/Evidences/`):
 - `TM_Workflow_Final_YAML.yml`
 - `2026-11-13_14-37-32.434_requirements_generator_succeeded.md`
 - `2026-11-13_14-39-56.511_jira_integration_succeeded.md`
@@ -361,7 +399,8 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 - **Single placement location:** Both Confluence assistants write only to the CMCP - Project Docs folder.
 - **Traceability:** Each story carries a `source_requirement_id` that maps it to its requirement.
 - **Backward compatibility:** ENH-17 keeps allow-all CORS as the default. ENH-15 keeps the `{error}` JSON contract.
-- **Scope:** The workflow covers requirements, planning and design. It does not change application code.
+- **Design page reuse:** Confluence page titles must be unique within a space, so the design pages from an earlier run (titles ending in `- EPMCDMETST`) were returned instead of new ones. Epic-specific titles, for example "Architecture Spec - EPMCDMETST-72136", would let each run create its own design pages.
+- **Scope:** The workflow of Assistants 1 to 4 covers requirements, planning and design. It does not change application code. The implementation, review, testing and build steps are covered by Assistants 5 to 8 (sections 10 to 14).
 
 ---
 
@@ -409,12 +448,12 @@ All five stories feed the Master Plan (Confluence 20021249) and the four design 
 
 **Jira keys:** Epic EPMCDMETST-70517 with stories 70518 and 70519 (ENH-01); Epic EPMCDMETST-72136 (PR #6 fix).
 
-📸 **Figure 14:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
+📸 **Figure 13:** Assistant 5's Epic/Story confirmation prompt for EPMCDMETST-72136 in Claude Code (VS Code), captured 17 Nov 2026. The assistant stops and waits for the user's selection before writing any code.
 
-![Figure 14 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
-📸 **Figure 15:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
+![Figure 13 – Code Dev confirmation prompt](images/figure-14-code-dev-confirmation.png)
+📸 **Figure 14:** Commit `d3f5b1b` on `feature01`, as shown on GitHub.
 
-![Figure 15 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
+![Figure 14 – Commit d3f5b1b](images/figure-15-commit-d3f5b1b.png)
 
 ---
 
@@ -464,13 +503,13 @@ GitHub does not allow the author to approve their own PR, so the merge was done 
 
 **Earlier reviews:** PRs #1, #2 and #3 (4 and 12 Nov 2026) were reviewed by this assistant and merged manually as merge commits `ce7c336`, `906c9ec` and `0f41bf9`.
 
-📸 **Figure 16:** Assistant 6's review summary on PR #6.
+📸 **Figure 15:** Assistant 6's review summary on PR #6.
 
-![Figure 16 – PR #6 review](images/figure-16-pr6-review.png)
+![Figure 15 – PR #6 review](images/figure-16-pr6-review.png)
 
-📸 **Figure 17:** PR #6 in the Merged state.
+📸 **Figure 16:** PR #6 in the Merged state.
 
-![Figure 17 – PR #6 merged](images/figure-17-pr6-merged.png)
+![Figure 16 – PR #6 merged](images/figure-17-pr6-merged.png)
 
 ---
 
@@ -549,17 +588,17 @@ Assistant 7 then commented the retest result on each issue and moved it to **Res
 
 The issues are left in Resolved, for the reviewer to verify and Close.
 
-📸 **Figure 18:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
+📸 **Figure 17:** Playwright HTML report for the PR #6 run (181 tests: 180 passed, 1 flagged).
 
-![Figure 18 – Playwright HTML report](images/figure-18-playwright-report.png)
+![Figure 17 – Playwright HTML report](images/figure-18-playwright-report.png)
 
-📸 **Figure 19:** Assistant 7's retest comment on EPMCDMETST-72162 in Jira (17 Nov 2026), with the Run Cycle 04, Test Execution Summary and Test Plan links.
+📸 **Figure 18:** Assistant 7's retest comment on EPMCDMETST-72162 in Jira (17 Nov 2026), with the Run Cycle 04, Test Execution Summary and Test Plan links.
 
-![Figure 19 – Jira comment on EPMCDMETST-72162](images/figure-19-jira-comment-EPMCDMETST-72162.png)
+![Figure 18 – Jira comment on EPMCDMETST-72162](images/figure-19-jira-comment-EPMCDMETST-72162.png)
 
-📸 **Figure 20:** Confluence page tree under "Automation Testing Artifacts": Run Cycles 01 to 04, with Run Cycle 04 (`2026-11-17 11-48-13`) and its Test Plan and Test Execution Summary pages.
+📸 **Figure 19:** Confluence page tree under "Automation Testing Artifacts": Run Cycles 01 to 04, with Run Cycle 04 (`2026-11-17 11-48-13`) and its Test Plan and Test Execution Summary pages.
 
-![Figure 20 – Confluence Run Cycle 04 page tree](images/figure-20-confluence-run-cycle-04-page-tree.png)
+![Figure 19 – Confluence Run Cycle 04 page tree](images/figure-20-confluence-run-cycle-04-page-tree.png)
 
 ---
 
@@ -612,12 +651,12 @@ The issues are left in Resolved, for the reviewer to verify and Close.
   "files_committed": ["build/BUILD_INFO.md"], "pushed": true, "pr_opened": false }
 ```
 
-📸 **Figure 21:** Build and test output, re-run on 17 Nov 2026 against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
+📸 **Figure 20:** Build and test output, re-run on 17 Nov 2026 against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
 
-![Figure 21 – Build and test output](images/figure-21-build-output.png)
-📸 **Figure 22:** Application running locally on `localhost:5173` (sample tasks added for the capture).
+![Figure 20 – Build and test output](images/figure-21-build-output.png)
+📸 **Figure 21:** Application running locally on `localhost:5173` (sample tasks added for the capture).
 
-![Figure 22 – Running application](images/figure-22-running-app.png)
+![Figure 21 – Running application](images/figure-22-running-app.png)
 
 ---
 
