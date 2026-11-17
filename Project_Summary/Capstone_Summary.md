@@ -57,9 +57,9 @@ Each assistant reads the previous assistant's JSON output. It returns JSON that 
 
 **Figure 1: Workflow diagram** 
 
-**Figure 1 file:** `images/20261117T073612.329208Z.png`. The link is `sandbox:/v1/files/OX5pbWFnZS9wbmc0Nn53b3Jrc3BhY2UtMzljZjEyZjEtMDM2YS00ZTEyLWFkYmItOGI5ZTI0ZWZkZGUzMzR+aW1hZ2VzLzIwMjYxMTE3VDA3MzYxMi4zMjkyMDhaLnBuZw==`.
+**Figure 1 file:** `images/figure-01-workflow-diagram.png`.
 
-![Figure 1 – Workflow diagram](sandbox:/v1/files/OX5pbWFnZS9wbmc0Nn53b3Jrc3BhY2UtMzljZjEyZjEtMDM2YS00ZTEyLWFkYmItOGI5ZTI0ZWZkZGUzMzR+aW1hZ2VzLzIwMjYxMTE3VDA3MzYxMi4zMjkyMDhaLnBuZw==)
+![Figure 1 – Workflow diagram](images/figure-01-workflow-diagram.png)
 
 | State | Assistant | Assistant ID | Next state | Human approval (`interrupt_before`) |
 |---|---|---|---|---|
