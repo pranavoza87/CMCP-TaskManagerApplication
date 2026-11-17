@@ -407,7 +407,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | 10 | Code implemented and delivered through reviewed pull requests | ✓ Assistants 5 and 6 | Sections 10 and 11 |
 | 11 | Automated tests executed and results recorded | ✓ Assistant 7: backend 65/65, BDD 181/181 | Section 12 |
 | 12 | Defect found, fixed and retested | ✓ Bug EPMCDMETST-72213 (PR #12) | Sections 10 to 12 |
-| 13 | Local build and launch verified | ✓ Assistant 8 | Section 13 |
+| 13 | Build, deployment package and launch verified | ✓ Assistant 8 | Section 13 |
 | 14 | Reusable skills created and attached to Assistants 1 to 4 | ✓ One skill per assistant | Section 1.5 |
 
 **Evidence files** (the step output files are in `Project_Summary/Evidences/`):
@@ -644,16 +644,17 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 | **Invoked via** | Registered with `codemie assistants setup` and run manually in the Claude Code CLI in VS Code |
 | **Input from** | The merged `main` branch |
 
-**Description:** This assistant builds the application locally and fixes build errors on its own. It commits build output to Git for CI/CD, launches the app, and returns a JSON summary.
+**Description:** This assistant builds the application locally and fixes build errors on its own. It packages the tested build into a deployment package, checks that the application launches from the package, commits the package to Git for CI/CD, and returns a JSON summary.
 
-**Purpose:** It is the final stage. It confirms the merged code builds and runs, and records the result on a branch.
+**Purpose:** It is the final stage. It confirms that the merged code builds, passes its tests and launches, and leaves a verified deployment package on a Git branch, ready for CI/CD.
 
 **What it does:**
 
-1. Checks the project and Git state, installs dependencies and runs the build.
+1. Checks the project and Git state, installs dependencies, and runs the tests and the production build.
 2. Fixes errors on its own and re-runs until the build passes.
-3. Commits and pushes, then launches the app and verifies the endpoints.
-4. Returns a JSON summary.
+3. Creates a deployment package: a zip with the production frontend build, the backend runtime files and a manifest, and records its checksum.
+4. Unpacks the package into a clean folder, launches the application from it, and verifies the endpoints.
+5. Commits the package to a new branch and pushes it, then returns a JSON summary.
 
 **Key instructions:**
 
@@ -667,6 +668,8 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 
 ### Evidence (17 Nov 2026)
 
+**Run 1: build, launch check and build note**
+
 | Item | Result |
 |---|---|
 | Base | `origin/main` at `16ae960` (the PR #6 merge) |
@@ -676,21 +679,39 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 | Local launch | `/api/health` 200, `/api/tasks` 200, `localhost:5173` 200, Vite proxy `/api/tasks` 200. All processes were stopped afterwards. |
 | Git | New branch `build/artifacts-72136`, commit [`1ed8a6b`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/1ed8a6bcc26d43361fcef8d4c3929090cb7c74c1), pushed with no force. No PR was opened. |
 | Committed | `build/BUILD_INFO.md`. `frontend/dist` is gitignored, so no build output was committed. |
-| Troubleshooting | None needed |
+
+**Run 2: deployment package**
+
+| Item | Result |
+|---|---|
+| Base | `origin/main` at `d440e32` (the PR #18 merge) |
+| Tests and build | Backend **65/65 passed**. Vite build: 32 modules; JS 146.24 kB (47.28 kB gzipped). |
+| Package | `deploy/task-manager-deploy-d440e32.zip`, 66,597 bytes, SHA-256 `6b8871483f25426e58cbb2c942192f1572b8c363541ea79c469a76e2ebc8f4a3` |
+| Package contents | 9 files: `MANIFEST.md`, the backend `package.json`, `package-lock.json`, `src/db.js`, `src/server.js` and `src/validation.js`, and the frontend `dist/` (`index.html`, one CSS file, one JS file). No `node_modules`, tests, `.env` files or databases. |
+| Package checks | Valid zip. The backend files are byte-identical to the committed files at `d440e32`. The frontend files are identical to a fresh build. The checksum matches `deploy/MANIFEST.md`. |
+| Launch from the package | Unpacked with `Expand-Archive` into a clean folder, then `npm ci --omit=dev` (0 vulnerabilities). `/api/health` 200, frontend page 200, proxied `/api/tasks` 200. Three sample tasks were created (201). All processes were stopped and the ports released. |
+| Git | Branch [`build/deployment-package-72136`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/tree/build/deployment-package-72136/deploy), folder `deploy/` with the zip, `MANIFEST.md` and `README.md`. Latest commit [`4c0827e`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/commit/4c0827e37285f98aabd2878adb4fb8caebb24ad6). Pushed with no force. No PR was opened. |
+| Corrections | Independent verification led to two follow-up commits on the first package: `342cfdf` replaced an archive that was a tar file with a `.zip` name by a real zip, and `4c0827e` repackaged the backend files with the exact committed bytes (LF line endings). |
 
 ```json
-{ "deployment_status": "success", "branch": "build/artifacts-72136",
-  "commit_sha": "1ed8a6bcc26d43361fcef8d4c3929090cb7c74c1",
-  "files_committed": ["build/BUILD_INFO.md"], "pushed": true, "pr_opened": false }
+{ "deployment_status": "success", "branch": "build/deployment-package-72136",
+  "commit_sha": "4c0827e37285f98aabd2878adb4fb8caebb24ad6",
+  "package": "deploy/task-manager-deploy-d440e32.zip",
+  "package_sha256": "6b8871483f25426e58cbb2c942192f1572b8c363541ea79c469a76e2ebc8f4a3",
+  "launched_from_package": true, "pushed": true, "pr_opened": false }
 ```
 
-**Figure 21:** Build and test output, re-run on 17 Nov 2026 against `main` at `52033f4` (backend 65/65 passed, Vite build succeeded). The output is rendered from the captured command text.
+**Figure 21:** Console log of Assistant 8's evidence run on 17 Nov 2026, shown in two parts: (a) dependency install, backend tests, production build and the check of the committed package; (b) launch from the package, sample tasks, cleanup and the result summary (all seven steps PASS). The images are rendered from the agent's log file; the text is unchanged.
 
-![Figure 21 – Build and test output](images/figure-21-build-output.png)
+![Figure 21a – Build and package check](images/figure-21a-build-and-package-check.png)
 
-**Figure 22:** Application running locally on `localhost:5173` (sample tasks added for the capture).
+![Figure 21b – Launch from the package](images/figure-21b-launch-from-package.png)
 
-![Figure 22 – Running application](images/figure-22-running-app.png)
+*Note on the install step:* `npm ci` also prints security advisories for development-only tooling (the test tooling in the root project and the Vite build tooling in the frontend). A production-only audit (`npm audit --omit=dev`) reports 0 vulnerabilities in the root, backend and frontend projects, and none of that tooling is part of the deployment package.
+
+**Figure 22:** The application launched from the deployment package, in a screenshot taken by Assistant 8 (three sample tasks were added through the API for the capture).
+
+![Figure 22 – Application launched from the deployment package](images/figure-22-running-app.png)
 
 ---
 
@@ -703,7 +724,7 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 | 5 | Code Dev | Jira backlog, Master Plan, design pages | Commits on a feature branch |
 | 6 | PR Review & Merge | The pull request | Review comments, then merge |
 | 7 | Playwright-BDD Test Generator | Code, Jira stories, Confluence specs | Features, test run, Jira and Confluence updates |
-| 8 | Local Build & Git Deployment | Merged `main` | Build and test results, build branch |
+| 8 | Local Build & Git Deployment | Merged `main` | Build and test results, verified deployment package on a branch |
 
 **Actual run timeline (PR #6 and PR #12; EPMCDMETST-72136, 72162 and 72213):**
 
@@ -718,6 +739,7 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 | 17 Nov 2026 | 6 | Review and merge of PR #12 (`bdd` check: 181 passed) | [PR #12](https://github.com/pranavoza87/CMCP-TaskManagerApplication/pull/12), `d726587` |
 | 17 Nov 2026 | 7 | Full retest on `main`: backend 65/65, BDD 181/181; Run Cycle 04 published | Confluence page 21168130 |
 | 17 Nov 2026 | 7 (Jira tool) | Retest comments on 72163, 72164, 72165, 72162 and 72213; all moved to Resolved | Comment IDs 16100332, 16100400, 16100405, 16100338, 16100340 |
+| 17 Nov 2026 | 8 | Deployment package built, launched from the package and pushed | `4c0827e` on `build/deployment-package-72136` |
 
 **Links to the earlier workflow:** Assistants 5 to 8 take their requirements and plans from the Jira backlog (Epic EPMCDMETST-72136, produced by Assistant 2), the Master Plan (page 20021249, Assistant 3) and the design pages (Assistant 4) described in sections 3 to 5.
 
