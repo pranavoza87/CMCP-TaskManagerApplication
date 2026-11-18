@@ -17,8 +17,9 @@
 
 **Objective:** Build an agentic pipeline in which each SDLC phase is carried out by an AI assistant, with human-in-the-loop (HITL) control to keep quality and accountability.
 
+- **Application used in the project:** The **Task Manager Application** is a **brownfield** application, built earlier with the **Claude CLI in VS Code**. It is a small web app with an Express and SQLite backend and a React (Vite) frontend. It has only three basic features: **viewing**, **adding** and **deleting** tasks. Tasks have a read-only status and cannot be edited. The existing code and the [`BROWNFIELD_BASELINE_ASSESSMENT.md`](https://github.com/pranavoza87/CMCP-TaskManagerApplication/blob/main/BROWNFIELD_BASELINE_ASSESSMENT.md) report are the baseline the eight assistants analyze, extend, test and deploy.
 - **Eight assistants** cover requirements, Jira backlog, implementation plan, design, code, pull-request review and merge, automated testing, and local build and deployment (section 1).
-- **Assistants 1 to 4** run as one orchestrated CodeMie workflow (section 2). 
+- **Assistants 1 to 4** run as one orchestrated CodeMie workflow (section 2).
 - **Assistants 5 to 8** run in the Claude Code CLI in VS Code, using the outputs of the first four (sections 11 to 14).
 - **Human-in-the-loop points:** approval pauses in the workflow (`interrupt_before`), Assistant 5's confirmation prompt before it writes any code, and review and merge of each pull request through Assistant 6, with explicit approval from the project owner.
 
@@ -31,6 +32,7 @@
 | – | Project Overview |
 | 1 | Assistants in CodeMie |
 | 1.1 | Skills used by Assistants 1 to 4 |
+| 1.2 | Integrations and Datasources used by Assistants 1 to 4 |
 | 2 | Workflow Overview |
 | 2.1 | What the workflow does |
 | 2.2 | Architecture and flow (Figure 3) |
@@ -56,7 +58,7 @@
 
 Eight assistants were built in the CodeMie platform for this project and registered in the CodeMie CLI. Assistants 1 to 4 run together as an orchestrated workflow configured in the CodeMie platform, where each runs as a state of the workflow (section 2). Assistants 5 to 8 are run manually in the Claude Code CLI in VS Code and are described in sections 11 to 14.
 
-**Figure 1: The eight assistants in the CodeMie platform.**
+**Figure 1:** The eight assistants in the CodeMie platform.
 
 ![Figure 1 – The eight assistants in the CodeMie platform](images/codemie-assistant-names.png)
 
@@ -84,9 +86,36 @@ CodeMie skills are reusable instruction sets that can be attached to an assistan
 
 Each skill follows the same structure: Purpose, Context, Instructions, Examples, Best Practices and Additional Notes.
 
-**Figure 2: Project Skills page in CodeMie.** The four skills used by Assistants 1 to 4 are shown.
+**Figure 2:** Project Skills page in CodeMie. The four skills used by Assistants 1 to 4 are shown.
 
 ![Figure 2 – Skills created and used by Assistants 1 to 4](images/figure-23-skills-created-and-used.png)
+
+### 1.2 Integrations and Datasources used by Assistants 1 to 4
+
+Assistants 1 to 4 get their access to the application code and to external tools through one datasource and three integrations, all configured in the CodeMie platform. Each assistant has only the ones it needs. None of them uses an MCP server (only Assistant 7 does, section 13). Assistants 5 to 8 use their own tools and integrations, described in sections 11 to 14.
+
+**Figure 2a:** Integrations in CodeMie. The three integrations used by Assistants 1 to 4: `CodeMie User` (Confluence), `github_pranav` (Git) and `jira-pranav` (Jira).
+
+![Figure 2a – Integrations used by Assistants 1 to 4](images/integrations-used-codemie-img.png)
+
+**Figure 2b:** Datasource in CodeMie. The `taskmanager_datasource` code datasource, status COMPLETED, shared with the project.
+
+![Figure 2b – taskmanager_datasource](images/taskmanager-datasource-codemie-img.png)
+
+| Name | Type | Alias or ID | Endpoint | Used by |
+|---|---|---|---|---|
+| Datasource | Code | `taskmanager_datasource` | [Task Manager Repository](https://github.com/pranavoza87/CMCP-TaskManagerApplication/) | Assistant 1 |
+| Jira | Jira | `jira-pranav` | `https://jiraeu.epam.com` | Assistant 2 |
+| Confluence | Confluence | `CodeMie User` | `https://pranavoza87.atlassian.net/` | Assistants 3 and 4 |
+| GitHub | Git (global) | `github_pranav` | `https://github.com` | Assistants 2, 3 and 4 |
+
+**Datasource `taskmanager_datasource` (Assistant 1).** This is a code datasource built from the Task Manager repository. **Assistant 1** treats it as its source of truth and uses it to analyze the current state of the application: the frontend, the backend and the other features. From that it finds gaps, improvements, suggestions and changes still needed. Its requirements are grounded in what is actually in the code.
+
+**Jira integration `jira-pranav` (Assistant 2).** **Assistant 2** uses the Jira tool configured through this integration to create the Epic, the Stories and the Sub-tasks in project `EPMCDMETST`. The tool applies the project's own Jira custom fields (for example the Epic Name field `customfield_14501`), its field-level mapping and the links between items, such as the Story-to-Epic link. It also adds comments, attaches the development and test artifacts to the Jira Epic, Story and Sub-tasks wherever applicable. It is used to perform read/write operations on the Jira Project `EPMCDMETST` by the assistant.
+
+**Confluence integration `CodeMie User` (Assistants 3 and 4).** **Assistant 3** uses it to create the "Master Implementation Plan" page in the project's Confluence space and folder. It then returns the direct page URL in the Markdown link format that the workflow expects. **Assistant 4** uses it to create the design documents in the specified Confluence space and folder, or under a given content ID.
+
+**GitHub integration `github_pranav` (Assistants 2, 3 and 4).** This integration gives read access to the Task Manager repository. The assistants use it to check the existing application state, the frontend and backend source code and the technical dependencies. **Assistant 2** uses it to write acceptance criteria and Sub-tasks that match the real code, and **Assistants 3 and 4** use it to base the implementation plan and the design specifications on the actual code.
 
 ---
 
@@ -104,7 +133,7 @@ Each assistant reads the previous assistant's JSON output. It returns JSON that 
 
 ### 2.2 Architecture and flow
 
-**Figure 3: Workflow diagram** 
+**Figure 3:** Workflow diagram.
 
 ![Figure 3 – Workflow diagram](images/figure-01-workflow-diagram.png)
 
@@ -117,7 +146,7 @@ Each assistant reads the previous assistant's JSON output. It returns JSON that 
 
 The three states that write to Jira or Confluence pause for human approval first.
 
-**Figure 4: Workflow canvas in CodeMie.** The canvas shows Start, the four assistant states (Requirements_Generator, Jira_Integration, Master_Plan_Generator, Design_Doc_Generator) and End. The human-approval pauses are set in the workflow YAML (`interrupt_before`), as listed in the table above.
+**Figure 4:** Workflow canvas in CodeMie. The canvas shows Start, the four assistant states (Requirements_Generator, Jira_Integration, Master_Plan_Generator, Design_Doc_Generator) and End. The human-approval pauses are set in the workflow YAML (`interrupt_before`), as listed in the table above.
 
 ![Figure 4 – Workflow canvas in CodeMie](images/figure-02-workflow-export.png)
 
@@ -131,7 +160,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | Design_Doc_Generator | ✓ Succeeded |
 | Result_Finalizer_Node | ✓ Succeeded |
 
-**Figure 5: Execution history showing all nodes as Succeeded.** The run of `TM_Workflow_Final` shows SUCCEEDED, with the four assistants and the result finalizer each marked complete.
+**Figure 5:** Execution history showing all nodes as Succeeded. The run of `TM_Workflow_Final` shows SUCCEEDED, with the four assistants and the result finalizer each marked complete.
 
 ![Figure 5 – Workflow execution history](images/figure-03-execution-history.png)
 
@@ -160,7 +189,23 @@ The three states that write to Jira or Confluence pause for human approval first
 | **Role** | Requirement and Enhancement Analyst |
 | **Skill** | `requirement-enhancement-generator` (attached in the assistant's skills configuration; see section 1.1) |
 
-**Description:** This assistant analyzes the source documentation and codebase. It extracts technical requirements and enhancements. It treats the provided data source as the absolute truth and does not assume facts outside it.
+**Configuration:**
+
+| Item | Detail |
+|---|---|
+| **Input** | In the workflow: the request text *"Generate new enhancements for task manager application."* When run on its own: any requirement criteria the user types in the assistant chat. The assistant generates requirements from that text as well. |
+| **What it does with the input** | Analyzes the application, finds gaps and improvements, and writes structured requirements. |
+| **Datasource** | `taskmanager_datasource`. It is used to analyze the existing frontend, backend and other features for gaps (section 1.2). |
+| **Integrations** | None. It does not use Jira, Confluence or GitHub. |
+| **MCP server** | None |
+| **Skill** | `requirement-enhancement-generator` |
+| **Output** | JSON that matches `RequirementAnalysisOutput`, passed to Assistant 2. |
+
+**Description:** This assistant analyzes the Task Manager application through the `taskmanager_datasource` code datasource (section 1.2) and extracts technical requirements and enhancements. It treats the datasource as the absolute truth and does not assume facts outside it. It takes either the workflow request or requirement criteria typed in the assistant chat, and compares them with the frontend, backend and other features in the code to find gaps. It uses no Jira, Confluence or GitHub integration and no MCP server, so it writes nothing outside its JSON output.
+
+**Dependencies:** its findings are only as current as the datasource index (last updated 18 Nov 2026).
+
+**Limitations:** it covers requirements and enhancements only, not defects or test strategy.
 
 **Purpose:** It is the entry point of the pipeline. It turns an open request into a prioritized, structured requirement set.
 
@@ -200,7 +245,7 @@ The three states that write to Jira or Confluence pause for human approval first
 
 > **Sample acceptance criteria (ENH-13):** *Given* the UI shows a task that no longer exists on the server, *When* the user clicks Delete and the API returns `404 {"error":"task not found"}`, *Then* the UI shows the error and refreshes the list so the stale row is removed.
 
-**Figure 6: Requirement and Enhancement Analyst output (JSON).** The images below are rendered from the assistant's JSON output (the Result of the Requirements_Generator step), shown in two parts for readability. The values are unchanged; the "..." lines only mark where the output is split between the two images.
+**Figure 6:** Requirement and Enhancement Analyst output (JSON). The images below are rendered from the assistant's JSON output (the Result of the Requirements_Generator step), shown in two parts for readability. The values are unchanged; the "..." lines only mark where the output is split between the two images.
 
 ![Figure 6a – Requirement and Enhancement Analyst output, part 1](images/figure-04a-requirements-output-part1.png)
 
@@ -220,7 +265,22 @@ The three states that write to Jira or Confluence pause for human approval first
 | **Skill** | `jira-creation-from-requirements` (attached in the assistant's skills configuration; see section 1.1) |
 | **Human approval** | ✓ before execution |
 
-**Description:** This assistant reads the requirements JSON. It uses its Jira tool to build the backlog in project `EPMCDMETST` and returns the real issue keys and links.
+**Configuration:**
+
+| Item | Detail |
+|---|---|
+| **Input** | The requirements JSON from Assistant 1 |
+| **Datasource** | None |
+| **Integrations** | Jira `jira-pranav`: creates the Epic, Stories and Sub-tasks in `EPMCDMETST`, with custom fields, field mapping and links. GitHub `github_pranav`: reads the code to check the existing state and write verified acceptance criteria (section 1.2). |
+| **MCP server** | None |
+| **Skill** | `jira-creation-from-requirements` |
+| **Output** | JSON that matches `JiraEpicStoryGenerationOutput`, with real issue keys and links, passed to Assistant 3. |
+
+**Description:** This assistant reads the requirements JSON from Assistant 1. It uses the Jira integration `jira-pranav` to build the backlog in project `EPMCDMETST`, with the project's custom fields, field mapping and links, and returns the real issue keys and links. It uses the GitHub integration `github_pranav` to read the code, so that the acceptance criteria and Sub-tasks match the real application. It has no datasource and no MCP server.
+
+**Dependencies:** the requirements JSON, a working Jira connection and human approval before it runs (`interrupt_before`).
+
+**Limitations:** Stories use standard Jira fields only, the Epic needs `customfield_14501`, and GitHub is used for reference only.
 
 **Purpose:** It turns requirements into trackable work items that are ready for sprint planning.
 
@@ -262,11 +322,11 @@ The three states that write to Jira or Confluence pause for human approval first
 | ENH-16 | [EPMCDMETST-72149](https://jiraeu.epam.com/browse/EPMCDMETST-72149) | [72150](https://jiraeu.epam.com/browse/EPMCDMETST-72150) / [72151](https://jiraeu.epam.com/browse/EPMCDMETST-72151) / [72152](https://jiraeu.epam.com/browse/EPMCDMETST-72152) |
 | ENH-17 | [EPMCDMETST-72153](https://jiraeu.epam.com/browse/EPMCDMETST-72153) | [72154](https://jiraeu.epam.com/browse/EPMCDMETST-72154) / [72155](https://jiraeu.epam.com/browse/EPMCDMETST-72155) / [72156](https://jiraeu.epam.com/browse/EPMCDMETST-72156) |
 
-**Figure 7: Jira Epic EPMCDMETST-72136 with its linked stories.** The Epic "Task Manager Application Enhancements" lists the five stories (EPMCDMETST-72137, 72141, 72145, 72149 and 72153) for ENH-13 to ENH-17. The linked bug EPMCDMETST-72213 appears as Resolved.
+**Figure 7:** Jira Epic EPMCDMETST-72136 with its linked stories. The Epic "Task Manager Application Enhancements" lists the five stories (EPMCDMETST-72137, 72141, 72145, 72149 and 72153) for ENH-13 to ENH-17. The linked bug EPMCDMETST-72213 appears as Resolved.
 
 ![Figure 7 – Jira Epic EPMCDMETST-72136](images/figure-05-jira-epic.png)
 
-**Figure 8: A Story (EPMCDMETST-72137, ENH-13) with its 3 sub-tasks.** The Sub-Tasks section lists Implementation (72138), Testing (72139) and Code Review (72140). The story is linked to Epic EPMCDMETST-72136.
+**Figure 8:** A Story (EPMCDMETST-72137, ENH-13) with its 3 sub-tasks. The Sub-Tasks section lists Implementation (72138), Testing (72139) and Code Review (72140). The story is linked to Epic EPMCDMETST-72136.
 
 ![Figure 8 – Jira story EPMCDMETST-72137 with sub-tasks](images/figure-06-jira-story-subtasks.png)
 
@@ -284,7 +344,22 @@ The three states that write to Jira or Confluence pause for human approval first
 | **Skill** | `master-implementation-plan-creation-confluence` (attached in the assistant's skills configuration; see section 1.1) |
 | **Human approval** | ✓ before execution |
 
-**Description:** This assistant reads the Jira backlog. It writes a complete Master Implementation & Development Plan, or Technical Design Document, and publishes it to Confluence.
+**Configuration:**
+
+| Item | Detail |
+|---|---|
+| **Input** | The Jira backlog (Epic, Stories and Sub-tasks) from Assistant 2 |
+| **Datasource** | None |
+| **Integrations** | Confluence `CodeMie User`: publishes the Master Implementation Plan to the approved space and folder and returns the page link. GitHub `github_pranav`: reads the code so the plan reflects the real application (section 1.2). |
+| **MCP server** | None |
+| **Skill** | `master-implementation-plan-creation-confluence` |
+| **Output** | JSON that matches `ImplementationPlanGenerationOutput`, with the page ID and URL, passed to Assistant 4. |
+
+**Description:** This assistant reads the Jira backlog from Assistant 2. It uses the Confluence integration `CodeMie User` to publish the Master Implementation & Development Plan, or Technical Design Document, and returns the page link. It uses the GitHub integration `github_pranav` to base the plan on the actual code. It has no datasource and no MCP server.
+
+**Dependencies:** the Jira backlog, the Confluence space and folder, and human approval before it runs.
+
+**Limitations:** it may write only to space `~712020c564eda18e274aaca9dffc1762d1c0a9`, folder `15269889`, and it verifies both before creating the page.
 
 **Purpose:** It gives the team one program-level plan that links the Jira work to the delivery approach.
 
@@ -314,7 +389,7 @@ The three states that write to Jira or Confluence pause for human approval first
 | Location | CMCP - Project Docs (folder `15269889`) |
 | Link | [Open page](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/20021249/Master+Implementation+Plan+-+EPMCDMETST+-+Task+Manager+Application+Enhancements) |
 
-**Figure 9: Master Plan page in Confluence, with the folder breadcrumb.** The page "Master Implementation Plan - EPMCDMETST - Task Manager Application Enhancements" sits in the folder CMCP - Project Docs, next to the four design pages.
+**Figure 9:** Master Plan page in Confluence, with the folder breadcrumb. The page "Master Implementation Plan - EPMCDMETST - Task Manager Application Enhancements" sits in the folder CMCP - Project Docs, next to the four design pages.
 
 ![Figure 9 – Master Plan page in Confluence](images/figure-08-master-plan-page.png)
 
@@ -332,7 +407,22 @@ The three states that write to Jira or Confluence pause for human approval first
 | **Skill** | `design-specs-generation-to-confluence` (attached in the assistant's skills configuration; see section 1.1) |
 | **Human approval** | ✓ before execution |
 
-**Description:** This assistant reads the Jira backlog and the published Master Plan. It returns the four design specification pages (Architecture, High-Level Design, Low-Level Design and Wireframes/UI) in the approved Confluence folder, with their page IDs and links.
+**Configuration:**
+
+| Item | Detail |
+|---|---|
+| **Input** | The Jira backlog and the Master Plan page URL from Assistant 3 |
+| **Datasource** | None |
+| **Integrations** | Confluence `CodeMie User`: creates the design documents in the specified space and folder, or under a given content ID. GitHub `github_pranav`: reads the code so the designs reflect the real application (section 1.2). |
+| **MCP server** | None |
+| **Skill** | `design-specs-generation-to-confluence` |
+| **Output** | JSON that matches `DesignSpecificationsGenerationOutput`, with the four design page IDs and URLs. |
+
+**Description:** This assistant reads the Jira backlog and the published Master Plan. It uses the Confluence integration `CodeMie User` to return the four design specification pages (Architecture, High-Level Design, Low-Level Design and Wireframes/UI) in the approved space and folder, or under a given content ID, with their page IDs and links. It uses the GitHub integration `github_pranav` to base the designs on the actual code. It has no datasource and no MCP server.
+
+**Dependencies:** the Jira backlog, the Master Plan URL and human approval before it runs.
+
+**Limitations:** Confluence page titles are unique within a space, so in this run the existing design pages were returned instead of new ones.
 
 **Purpose:** It gives developers a technical blueprint before implementation. The blueprint covers system structure, component design and UI.
 
@@ -361,19 +451,19 @@ The three states that write to Jira or Confluence pause for human approval first
 | LLD | LLD - EPMCDMETST | 19005441 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19005441/LLD+-+EPMCDMETST) |
 | Wireframes / UI | Wireframes & UI - EPMCDMETST | 19038209 | [Open](https://pranavoza87.atlassian.net/wiki/spaces/~712020c564eda18e274aaca9dffc1762d1c0a9/pages/19038209/Wireframes+UI+-+EPMCDMETST) |
 
-**Figure 10: Architecture Spec page.** One of the four existing design pages (created 12 Nov 2026, story EPMCDMETST-71759) returned by Assistant 4.
+**Figure 10:** Architecture Spec page. One of the four existing design pages (created 12 Nov 2026, story EPMCDMETST-71759) returned by Assistant 4.
 
 ![Figure 10 – Architecture Spec page](images/figure-08-architecture-spec.png)
 
-**Figure 11: High-Level Design (HLD) page.**
+**Figure 11:** High-Level Design (HLD) page.
 
 ![Figure 11 – HLD page](images/figure-09-hld.png)
 
-**Figure 12: Low-Level Design (LLD) page.**
+**Figure 12:** Low-Level Design (LLD) page.
 
 ![Figure 12 – LLD page](images/figure-10-lld.png)
 
-**Figure 13: Wireframes & UI page.**
+**Figure 13:** Wireframes & UI page.
 
 ![Figure 13 – Wireframes & UI page](images/figure-11-wireframes-ui.png)
 
@@ -393,7 +483,7 @@ The three states that write to Jira or Confluence pause for human approval first
 
 **Value:** A reviewer can read it first to see the whole run at a glance.
 
-**Figure 14: Finalizer summary.** The Execution State Output of `result_finalizer_node`, shown in six parts (14a to 14f) because the summary is long. The finalizer summarises the assistants' JSON outputs from the conversation only. The Jira issues it lists are shown in Figures 7 and 8, and the Master Plan page in Figure 9.
+**Figure 14:** Finalizer summary. The Execution State Output of `result_finalizer_node`, shown in six parts (14a to 14f) because the summary is long. The finalizer summarizes the assistants' JSON outputs from the conversation only. The Jira issues it lists are shown in Figures 7 and 8, and the Master Plan page in Figure 9.
 
 ![Figure 14a – Finalizer summary, part 1](images/figure-12-finalizer-summary-img01.png)
 
@@ -478,7 +568,11 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | **Human approval** | ✓ Mandatory Epic/Story confirmation before any code is written |
 | **Input from** | Assistants 2, 3 and 4 (Jira backlog, Master Plan, design pages) |
 
-**Description:** This assistant implements the selected Epics and user stories. It uses the Confluence blueprint pages as its baseline and follows the repo's existing stack and conventions.
+**Description:** This assistant implements the selected Epics and user stories. It uses the Jira integration `jira-pranav` to read the Epic or story and its acceptance criteria. It uses `generic_confluence_tool` to read the Master Implementation Plan and the design documents (HLD, LLD and Wireframes) whenever it needs them for the code. It uses `taskmanager_datasource` for code context and the GitHub integration `github_pranav` to inspect the repository, create the feature branch, commit and open the pull request. It follows the repo's existing stack and conventions.
+
+**Dependencies:** the Jira keys and the design baseline from Assistants 2 to 4, and the user's confirmation before it writes any code.
+
+**Limitations:** it uses only the requirements and plan provided, with no invented endpoints or schemas, and deletions and force-pushes need explicit user instruction. It has no MCP server.
 
 **Purpose:** It turns the planning and design output into code on a feature branch.
 
@@ -498,7 +592,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | Reuse existing frameworks and conventions | Minimal, traceable changes |
 | Deletions and force-pushes need explicit user instruction | Safety |
 
-**Tools and integrations:** `generic_confluence_tool`; Git (`github_pranav`: `create_pull_request`, `get_pr_changes`, `create_pr_change_comment`); `github`; code context `taskmanager_datasource`.
+**Tools and integrations:** Jira (`jira-pranav`); `generic_confluence_tool`; Git (`github_pranav`: `create_pull_request`, `get_pr_changes`, `create_pr_change_comment`); `github`; code context `taskmanager_datasource`.
 
 **Output:** Code, commits and pull requests. This assistant has no JSON output schema.
 
@@ -536,7 +630,11 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | **Invoked via** | Registered with `codemie assistants setup` and run manually in the Claude Code CLI in VS Code |
 | **Input from** | The pull request produced from Assistant 5's work |
 
-**Description:** This assistant finds the PR, reviews the diff, and merges it when the criteria are met.
+**Description:** This assistant finds the PR, reviews the diff, and merges it when the criteria are met. It uses only the GitHub integration `github_pranav` and the `github` tool: to fetch the PR and diff, post line-level review comments and merge. It uses no Jira, Confluence or datasource and no MCP server, and it writes to neither Jira nor Confluence.
+
+**Dependencies:** the pull request from Assistant 5 and the CI result.
+
+**Limitations:** it never approves or merges with critical issues, and GitHub refuses approval of a PR by its own author (see "Review comments and approval" below).
 
 **Purpose:** It is the quality gate between implementation and testing.
 
@@ -597,7 +695,11 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | **Invoked via** | Registered with `codemie assistants setup` and run manually in the Claude Code CLI in VS Code |
 | **Input from** | Merged or reviewed code, Jira stories and Confluence specs |
 
-**Description:** This assistant reads Jira stories and Confluence design specs. It writes Gherkin features and Playwright-BDD scripts, runs them, and syncs results to Jira and Confluence.
+**Description:** This assistant reads Jira stories (`generic_jira_tool`) and Confluence design specs (`generic_confluence_tool`), and the code through `github_pranav`. It writes Gherkin features and Playwright-BDD scripts, runs them with `code_executor`, and drives the browser through the Playwright MCP Server. It then syncs the results to Jira (comments, attachments, bugs) and Confluence (Run Cycle, Test Plan and Test Execution Summary pages).
+
+**Dependencies:** the merged code, the stories and specs, and a working browser session.
+
+**Limitations:** it writes Confluence pages only, never folders, and never overwrites past run cycles. It records defects and does not fix them.
 
 **Purpose:** It verifies the implementation against the acceptance criteria and records the results.
 
@@ -617,7 +719,7 @@ All five stories feed the Master Plan (Confluence 20021249). The four design pag
 | Storage-format XHTML, then verify the stored page | Pages render correctly |
 | Return a JSON summary matching the schema | Deterministic output |
 
-**Tools and integrations:** `generic_confluence_tool`, `generic_jira_tool`; Git (`github_pranav`); `github`, `gitlab`; `code_executor`; Playwright MCP.
+**Tools and integrations:** `generic_confluence_tool`, `generic_jira_tool`; Git (`github_pranav`); `github`, `gitlab`; `code_executor`; `Playwright MCP Server`.
 
 **Output schema:** `project_key`, `execution_status`, `test_generation_summary`, `jira_integration` and `confluence_publishing` (space, parent page, run-cycle title and ID, plan and summary URLs).
 
@@ -695,7 +797,11 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 | **Invoked via** | Registered with `codemie assistants setup` and run manually in the Claude Code CLI in VS Code |
 | **Input from** | The merged `main` branch |
 
-**Description:** This assistant builds the application locally and fixes build errors on its own. It packages the tested build into a deployment package, checks that the application launches from the package, commits the package to Git for CI/CD, and returns a JSON summary.
+**Description:** This assistant builds the application locally and fixes build errors on its own. It packages the tested build into a deployment package, checks that the application launches from the package, and returns a JSON summary. It uses the GitHub integration `github_pranav` to commit the package to a new branch and push it for CI/CD. It uses no Jira, Confluence or datasource and no MCP server.
+
+**Dependencies:** the merged `main` branch, Node.js and the local workspace.
+
+**Limitations:** it pushes with no force and opens no PR, and `frontend/dist` is gitignored, so build output is delivered only inside the package.
 
 **Purpose:** It is the final stage. It confirms that the merged code builds, passes its tests and launches, and leaves a verified deployment package on a Git branch, ready for CI/CD.
 
@@ -715,7 +821,7 @@ The issues are left in Resolved, for the reviewer to verify and Close.
 | Prefer minimal, targeted fixes | Limits changes |
 | JSON-only output | Deterministic result |
 
-**Tools and integrations:** AgentWorkspace tools (list, read, write, edit, grep, `execute_workspace_script`); `code_executor`; Git (`git-2026-10-29_18-11`); `github`, `gitlab`.
+**Tools and integrations:** AgentWorkspace tools (list, read, write, edit, grep, `execute_workspace_script`); `code_executor`; Git (`github_pranav`); `github`, `gitlab`.
 
 ### Evidence (17 Nov 2026)
 
